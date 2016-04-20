@@ -62,177 +62,11 @@
 #include <iomanip>
 #include <vector>
 
+#include "adc2q.h"
+#include "QIE10_init.h"
+#include "QIE10_loop.h"
+
 using namespace std;
-
-#define NUMCHS 120 
-#define NUMTS 50
-#define NUMCHSTS NUMCHS*NUMTS
-
-#define NUMADCS 256
-
-
-double adc2fC_QIE10_refl[NUMADCS]={
-
-  // =========== RANGE 0 ===========
-
-  // --------- subrange 1 ---------
-  -14.45,-11.35,-8.25,-5.15,-2.05,1.05,4.15,7.25,10.35,13.45,16.55,19.65,22.75,25.85,28.95,32.05,
-  // --------- subrange 2 ---------
-  36.7,42.9,49.1,55.3,61.5,67.7,73.9,80.1,86.3,92.5,98.7,104.9,111.1,117.3,123.5,129.7,135.9,142.1,148.3,154.5,
-  // --------- subrange 3 ---------
-  163.8,176.2,188.6,201.0,213.4,225.8,238.2,250.6,263.0,275.4,287.8,300.2,312.6,325.0,337.4,349.8,362.2,374.6,387.0,399.4,411.8,
-  // --------- subrange 4 ---------
-  430.4,455.2,480.0,504.8,529.6,554.4,579.2,
-  // =========== RANGE 1 ===========
-
-  // --------- subrange 1 ---------
-  529.4,554.2,579.0,603.8,628.6,653.4,678.2,703.0,727.8,752.6,777.4,802.2,827.0,851.8,876.6,901.4,
-  // --------- subrange 2 ---------
-  938.6,988.2,1037.8,1087.4,1137.0,1186.6,1236.2,1285.8,1335.4,1385.0,1434.6,1484.2,1533.8,1583.4,1633.0,1682.6,1732.2,1781.8,1831.4,1881.0,
-  // --------- subrange 3 ---------
-  1955.4,2054.6,2153.8,2253.0,2352.2,2451.4,2550.6,2649.8,2749.0,2848.2,2947.4,3046.6,3145.8,3245.0,3344.2,3443.4,3542.6,3641.8,3741.0,3840.2,3939.4,
-  // --------- subrange 4 ---------
-  4088.2,4286.6,4485.0,4683.4,4881.8,5080.2,5278.6,
-  // =========== RANGE 2 ===========
-
-  // --------- subrange 1 ---------
-  4879.2,5077.6,5276.0,5474.4,5672.8,5871.2,6069.6,6268.0,6466.4,6664.8,6863.2,7061.6,7260.0,7458.4,7656.8,7855.2,
-  // --------- subrange 2 ---------
-  8152.8,8549.6,8946.4,9343.2,9740.0,10136.8,10533.6,10930.4,11327.2,11724.0,12120.8,12517.6,12914.4,13311.2,13708.0,14104.8,14501.6,14898.4,15295.2,15692.0,
-  // --------- subrange 3 ---------
-  16287.2,17080.8,17874.4,18668.0,19461.6,20255.2,21048.8,21842.4,22636.0,23429.6,24223.2,25016.8,25810.4,26604.0,27397.6,28191.2,28984.8,29778.4,30572.0,31365.6,32159.2,
-  // --------- subrange 4 ---------
-  33349.6,34936.8,36524.0,38111.2,39698.4,41285.6,42872.8,
-  // =========== RANGE 3 ===========
-
-  // --------- subrange 1 ---------
-  39693.5,41280.5,42867.5,44454.5,46041.5,47628.5,49215.5,50802.5,52389.5,53976.5,55563.5,57150.5,58737.5,60324.5,61911.5,63498.5,
-  // --------- subrange 2 ---------
-  65879.0,69053.0,72227.0,75401.0,78575.0,81749.0,84923.0,88097.0,91271.0,94445.0,97619.0,100793.0,103967.0,107141.0,110315.0,113489.0,116663.0,119837.0,123011.0,126185.0,
-  // --------- subrange 3 ---------
-  130946.0,137294.0,143642.0,149990.0,156338.0,162686.0,169034.0,175382.0,181730.0,188078.0,194426.0,200774.0,207122.0,213470.0,219818.0,226166.0,232514.0,238862.0,245210.0,251558.0,257906.0,
-  // --------- subrange 4 ---------
-  267428.0,280124.0,292820.0,305516.0,318212.0,330908.0,343604.0
-
-};
-
-
-void init(vector<vector<TH1F*> > &TH1Fs, int &num_TH1Fs, vector<string> &TH1F_names, vector<int> &TH1F_nbinsx, vector<float> &TH1F_lowx, vector<float> &TH1F_highx, vector<string> &TH1F_axisx, vector<vector<TH2F*> > &TH2Fs, int &num_TH2Fs, vector<string> &TH2F_names, vector<int> &TH2F_nbinsx, vector<float> &TH2F_lowx, vector<float> &TH2F_highx, vector<string> &TH2F_axisx, vector<int> &TH2F_nbinsy, vector<float> &TH2F_lowy, vector<float> &TH2F_highy, vector<string> &TH2F_axisy){
-
-  num_TH1Fs = 2;
-  char temp_TH1F_names[num_TH1Fs][100] = {"Qsum", "Width"};
-  int temp_TH1F_nbinsx[num_TH1Fs] = {64, 25};
-  float temp_TH1F_lowx[num_TH1Fs] = {0, 0};
-  float temp_TH1F_highx[num_TH1Fs] = {15000, 75};
-  char temp_TH1F_axisx[num_TH1Fs][100] = {"Integrated Charge (fC)", "Width (ns)"};
-
-  for (int i=0 ; i < num_TH1Fs ; i++) {
-    vector<TH1F*> temp_TH1F_vector; 
-    TH1Fs.push_back(temp_TH1F_vector);
-    TH1F_names.push_back(temp_TH1F_names[i]);
-    TH1F_nbinsx.push_back(temp_TH1F_nbinsx[i]);
-    TH1F_lowx.push_back(temp_TH1F_lowx[i]);
-    TH1F_highx.push_back(temp_TH1F_highx[i]);
-    TH1F_axisx.push_back(temp_TH1F_axisx[i]);
-  }
-
-  num_TH2Fs = 3;
-  char temp_TH2F_names[num_TH2Fs][100] = {"ADCpulse", "TDCpulse", "teTDCpulse"};
-  int temp_TH2F_nbinsx[num_TH2Fs] = {10, 10, 10};
-  float temp_TH2F_lowx[num_TH2Fs] = {-0.5, -0.5, -0.5};
-  float temp_TH2F_highx[num_TH2Fs] = {9.5, 9.5, 9.5};
-  char temp_TH2F_axisx[num_TH2Fs][100] = {"TS" , "TS", "TS"}; 
-  int temp_TH2F_nbinsy[num_TH2Fs] = {256, 64, 32};
-  float temp_TH2F_lowy[num_TH2Fs] = {-0.5, -0.5, -0.5};
-  float temp_TH2F_highy[num_TH2Fs] = {255.5, 63.5, 31.5};  
-  char temp_TH2F_axisy[num_TH2Fs][100] = {"ADC counts" , "leTDC value (0.5 ns)", "teTDC value (16/25 ns)"}; 
-
-  for (int i=0 ; i < num_TH2Fs ; i++) {
-    vector<TH2F*> temp_TH2F_vector;
-    TH2Fs.push_back(temp_TH2F_vector);
-    TH2F_names.push_back(temp_TH2F_names[i]);
-    TH2F_nbinsx.push_back(temp_TH2F_nbinsx[i]);
-    TH2F_lowx.push_back(temp_TH2F_lowx[i]);
-    TH2F_highx.push_back(temp_TH2F_highx[i]);
-    TH2F_axisx.push_back(temp_TH2F_axisx[i]);
-    TH2F_nbinsy.push_back(temp_TH2F_nbinsy[i]);
-    TH2F_lowy.push_back(temp_TH2F_lowy[i]);
-    TH2F_highy.push_back(temp_TH2F_highy[i]);
-    TH2F_axisy.push_back(temp_TH2F_axisy[i]);
-  }
-
-}
-
-
-struct loop_vars {
-
-  int adcped = 3;
-  float qped = adc2fC_QIE10_refl[ adcped ];
-  float qsum = 0;
-  int main = 1;
-  
-};
-
-loop_vars pre_loop() {
-
-  loop_vars output;
-
-  output.adcped = 3;
-  output.qped = adc2fC_QIE10_refl[ output.adcped ];
-  output.qsum = 0;
-  output.main = 1;
-
-  return output;
-}
-
-
-loop_vars loop(int nTS, int nCH, QIE10DataFrame digis, loop_vars prevars, vector<vector<TH1F*> > &TH1Fs, vector<string> &TH1F_names, vector<vector<TH2F*> > &TH2Fs, vector<string> &TH2F_names) {
-
-  int tTS = digis.samples();
-
-  int adc = digis[nTS].adc();
-  int tdc = digis[nTS].le_tdc();
-  int te_tdc = digis[nTS].te_tdc();
-  //int capid = digis[nTS].capid();
-  //int soi = digis[nTS].soi();
-  float charge = adc2fC_QIE10_refl[ adc ];
-
-  // log  output
-  //cout << "TS " << std::setfill(' ') << std::setw(2) << i << ": " << capid << ", ";
-  
-  prevars.qsum += ( charge - prevars.qped );
-
-  if ( (0 < te_tdc) && (te_tdc < 16) ) {
-    if (nTS != tTS-1) {
-      for (int k=nTS; k<tTS; k++) {
-	if ( (digis[k].le_tdc() != 63) && (digis[k].le_tdc() != 62) ) {
-	  if (prevars.main ==1) {
-	    float wid = ((25.0/16.0)*te_tdc) + ((2 + nTS - k)*25) - ((25.0/64.0)*digis[k].le_tdc());
-	    TH1Fs[1][nCH]->Fill(wid);
-	    prevars.main = 0;
-	  }
-	}
-      }
-    }
-  }
-
-  TH2Fs[0][nCH]->Fill( nTS, adc);
-  TH2Fs[1][nCH]->Fill( nTS , tdc );
-  TH2Fs[2][nCH]->Fill( nTS , te_tdc );
-  
-  return prevars;
-
-}
-
-
-void post_loop(int nCH, loop_vars prevars, vector<vector<TH1F*> > &TH1Fs, vector<string> &TH1F_names, vector<vector<TH2F*> > &TH2Fs, vector<string> &TH2F_names) {
-
-  // log output
-  //cout << endl;
-
-  TH1Fs[0][nCH]->Fill( prevars.qsum );
-  
-}
 
 
 class HF_refl_analyzer : public edm::EDAnalyzer {
@@ -250,7 +84,6 @@ private:
   virtual void endJob() ;
 
   TFile *_file;
-  TTree *_treeQIE10;
 
   int _event_num;
 
@@ -414,23 +247,14 @@ void HF_refl_analyzer::getData(const edm::Event &iEvent, const edm::EventSetup &
 
     if (_verbosity>0)
       std::cout << "The pedestal for this channel is " << prevars.adcped << "ADC counts and " << prevars.qped << " fC" << std::endl;
-  
-    //_qie10Info.link_error[j] = qie10df.linkError();
-  
+    
   }
-
-  //_qie10Info.numChs = qie10dc.size();
-  //_qie10Info.numTS = qie10dc.samples();
 
   _event_num++;
 
   return;
 }
 
-
-//
-// member functions
-//
 
 // ------------ method called for each event  ------------
 void 
