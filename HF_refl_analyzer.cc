@@ -64,15 +64,12 @@
 
 using namespace std;
 
-#define PEAKTS 4
-#define DOWNTS 6
-#define REFLTS 7
-
 #define NUMCHS 120 
 #define NUMTS 50
 #define NUMCHSTS NUMCHS*NUMTS
 
 #define NUMADCS 256
+
 
 double adc2fC_QIE10_refl[NUMADCS]={
 
@@ -118,6 +115,7 @@ double adc2fC_QIE10_refl[NUMADCS]={
   267428.0,280124.0,292820.0,305516.0,318212.0,330908.0,343604.0
 
 };
+
 
 void init(vector<vector<TH1F*> > &TH1Fs, int &num_TH1Fs, vector<string> &TH1F_names, vector<int> &TH1F_nbinsx, vector<float> &TH1F_lowx, vector<float> &TH1F_highx, vector<string> &TH1F_axisx, vector<vector<TH2F*> > &TH2Fs, int &num_TH2Fs, vector<string> &TH2F_names, vector<int> &TH2F_nbinsx, vector<float> &TH2F_lowx, vector<float> &TH2F_highx, vector<string> &TH2F_axisx, vector<int> &TH2F_nbinsy, vector<float> &TH2F_lowy, vector<float> &TH2F_highy, vector<string> &TH2F_axisy){
 
@@ -187,6 +185,7 @@ loop_vars pre_loop() {
   return output;
 }
 
+
 loop_vars loop(int nTS, int nCH, QIE10DataFrame digis, loop_vars prevars, vector<vector<TH1F*> > &TH1Fs, vector<string> &TH1F_names, vector<vector<TH2F*> > &TH2Fs, vector<string> &TH2F_names) {
 
   int tTS = digis.samples();
@@ -225,7 +224,8 @@ loop_vars loop(int nTS, int nCH, QIE10DataFrame digis, loop_vars prevars, vector
 
 }
 
-void post_loop(int nCH, loop_vars prevars, vector<vector<TH1F*> > &TH1Fs, vector<string> &TH1F_names) {
+
+void post_loop(int nCH, loop_vars prevars, vector<vector<TH1F*> > &TH1Fs, vector<string> &TH1F_names, vector<vector<TH2F*> > &TH2Fs, vector<string> &TH2F_names) {
 
   // log output
   //cout << endl;
@@ -234,10 +234,6 @@ void post_loop(int nCH, loop_vars prevars, vector<vector<TH1F*> > &TH1Fs, vector
   
 }
 
-
-//
-// class declaration
-//
 
 class HF_refl_analyzer : public edm::EDAnalyzer {
 
@@ -292,53 +288,21 @@ private:
   edm::EDGetTokenT<HFDigiCollection> hf_token;
   edm::Handle<QIE10DigiCollection> qie10DigiCollection;
   
-  // ----------member data ---------------------------
 };
 
-//
-// constructors and destructor
-//
+
 HF_refl_analyzer::HF_refl_analyzer(const edm::ParameterSet& iConfig) :
   _outFileName(iConfig.getUntrackedParameter<string>("OutFileName")),
   _verbosity(iConfig.getUntrackedParameter<int>("Verbosity"))
 {
-
 
   tok_QIE10DigiCollection_ = consumes<HcalDataFrameContainer<QIE10DataFrame> >(edm::InputTag("hcalDigis"));
   hf_token = consumes<HFDigiCollection>(edm::InputTag("hcalDigis"));
 
   _file = new TFile(_outFileName.c_str(), "recreate");
 
-  /*
-  _file->mkdir("QIE10Data");
-
-  _file->cd("QIE10Data");
-  _treeQIE10 = new TTree("Events", "Events");
-  _treeQIE10->Branch("numChs", &_qie10Info.numChs, "numChs/I");
-  _treeQIE10->Branch("numTS", &_qie10Info.numTS, "numTS/I");
-  _treeQIE10->Branch("iphi", _qie10Info.iphi, "iphi[numChs]/I");
-  _treeQIE10->Branch("ieta", _qie10Info.ieta, "ieta[numChs]/I");
-  _treeQIE10->Branch("depth", _qie10Info.depth, "depth[numChs]/I");
-  _treeQIE10->Branch("pulse", _qie10Info.pulse, "pulse[numChs][50]/D");
-  _treeQIE10->Branch("ped", _qie10Info.ped, "ped[numChs]/D");
-  _treeQIE10->Branch("pulse_adc", _qie10Info.pulse_adc, "pulse_adc[numChs][50]/D");
-  _treeQIE10->Branch("ped_adc", _qie10Info.ped_adc, "ped_adc[numChs]/D");
-  _treeQIE10->Branch("link_error", _qie10Info.link_error, "link_error[numChs]/O");
-  _treeQIE10->Branch("soi", _qie10Info.soi, "soi[numChs][50]/O");
-  */
-
-  //  init_TH1Fs(TH1Fs,TH2Fs);
-
   init(TH1Fs,_num_TH1Fs,TH1F_names,TH1F_nbinsx,TH1F_lowx,TH1F_highx,TH1F_axisx,TH2Fs,_num_TH2Fs,TH2F_names,TH2F_nbinsx,TH2F_lowx,TH2F_highx,TH2F_axisx,TH2F_nbinsy,TH2F_lowy,TH2F_highy,TH2F_axisy);
 
-  for (int i = 0 ; i < _num_TH1Fs ; i++) {
-    _file->mkdir(TH1F_names[i].c_str());
-  }
-
-  for (int i = 0 ; i < _num_TH2Fs ; i++) {
-    _file->mkdir(TH2F_names[i].c_str());
-  }
-  
   _event_num = 0;
 
 }
@@ -350,6 +314,7 @@ HF_refl_analyzer::~HF_refl_analyzer()
 
 
   for (int i = 0 ; i < _num_TH1Fs ; i++) {
+    _file->mkdir(TH1F_names[i].c_str());
     _file->cd(TH1F_names[i].c_str());
     for( unsigned int j = 0 ; j < TH1Fs[0].size() ; j++ ){
       TH1Fs[i][j]->Write();
@@ -358,6 +323,7 @@ HF_refl_analyzer::~HF_refl_analyzer()
   }
 
   for (int i = 0 ; i < _num_TH2Fs ; i++) {
+    _file->mkdir(TH2F_names[i].c_str());
     _file->cd(TH2F_names[i].c_str());
     for( unsigned int j = 0 ; j < TH2Fs[0].size() ; j++ ){    
       TH2Fs[i][j]->Write();
@@ -374,14 +340,10 @@ void HF_refl_analyzer::getData(const edm::Event &iEvent, const edm::EventSetup &
 {
   using namespace edm;
 
-  //
   //  Extracting All the Collections containing useful Info
   iEvent.getByToken(tok_QIE10DigiCollection_,qie10DigiCollection);
   const QIE10DigiCollection& qie10dc=*(qie10DigiCollection);
 
-  // --------------------------
-  // --   QIE10 Information  --
-  // --------------------------
   if (_verbosity>0){
       cout << "### Before Loop: " << endl;
       cout << "### QIE10 Digis=" << qie10dc.size() << endl;
@@ -401,14 +363,12 @@ void HF_refl_analyzer::getData(const edm::Event &iEvent, const edm::EventSetup &
     if( TH1Fs[0].size() <= j ){
 
       for (int i = 0 ; i < _num_TH1Fs ; i++) {
-	_file->cd(TH1F_names[i].c_str());
 	sprintf(histoName,"%s_iEta%i_iPhi%i_Depth%i",TH1F_names.at(i).c_str(),ieta,iphi,(depth-1)/2+1);
 	TH1Fs[i].push_back(new TH1F(histoName,histoName,TH1F_nbinsx[i],TH1F_lowx[i],TH1F_highx[i]));
 	TH1Fs[i].back()->GetXaxis()->SetTitle(TH1F_axisx.at(i).c_str());
       }
       
       for (int i = 0 ; i < _num_TH2Fs ; i++) {
-	_file->cd(TH2F_names[i].c_str());
 	sprintf(histoName,"%s_iEta%i_iPhi%i_Depth%i",TH2F_names.at(i).c_str(),ieta,iphi,(depth-1)/2+1);
 	TH2Fs[i].push_back(new TH2F(histoName,histoName,TH2F_nbinsx[i],TH2F_lowx[i],TH2F_highx[i],TH2F_nbinsy[i],TH2F_lowy[i],TH2F_highy[i]));      
 	TH2Fs[i].back()->GetXaxis()->SetTitle(TH2F_axisx.at(i).c_str());
@@ -450,7 +410,7 @@ void HF_refl_analyzer::getData(const edm::Event &iEvent, const edm::EventSetup &
 
     //******** POSTLOOP ********
 
-    post_loop(j,prevars,TH1Fs,TH1F_names);
+    post_loop(j,prevars,TH1Fs,TH1F_names,TH2Fs,TH2F_names);
 
     if (_verbosity>0)
       std::cout << "The pedestal for this channel is " << prevars.adcped << "ADC counts and " << prevars.qped << " fC" << std::endl;
@@ -461,8 +421,6 @@ void HF_refl_analyzer::getData(const edm::Event &iEvent, const edm::EventSetup &
 
   //_qie10Info.numChs = qie10dc.size();
   //_qie10Info.numTS = qie10dc.samples();
-
-  //_treeQIE10->Fill();
 
   _event_num++;
 
