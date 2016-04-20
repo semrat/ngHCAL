@@ -119,33 +119,14 @@ double adc2fC_QIE10_refl[NUMADCS]={
 
 };
 
-/*
-void init_TH1Fs(vector<vector<TH1F*> > &TH1Fs, vector<vector<TH2F*> > &TH2Fs){
-
-  vector<TH1F*> QSum;
-  vector<TH1F*> Width;
-
-  TH1Fs.push_back(QSum);
-  TH1Fs.push_back(Width);
-
-  vector<TH2F*> ADCpulse;			// 2D hist: charge vs. time sample (BX)
-  vector<TH2F*> TDCpulse;                // 2D hist: TDC leading edge vs. BX
-  vector<TH2F*> teTDCpulse;
-
-  TH2Fs.push_back(ADCpulse);
-  TH2Fs.push_back(TDCpulse);
-  TH2Fs.push_back(teTDCpulse);
-
-}
-*/
-
-void init(vector<vector<TH1F*> > &TH1Fs, int &num_TH1Fs, vector<string> &TH1F_names, vector<int> &TH1F_nbinsx, vector<float> &TH1F_lowx, vector<float> &TH1F_highx, vector<vector<TH2F*> > &TH2Fs, int &num_TH2Fs, vector<string> &TH2F_names, vector<int> &TH2F_nbinsx, vector<float> &TH2F_lowx, vector<float> &TH2F_highx, vector<int> &TH2F_nbinsy, vector<float> &TH2F_lowy, vector<float> &TH2F_highy){
+void init(vector<vector<TH1F*> > &TH1Fs, int &num_TH1Fs, vector<string> &TH1F_names, vector<int> &TH1F_nbinsx, vector<float> &TH1F_lowx, vector<float> &TH1F_highx, vector<string> &TH1F_axisx, vector<vector<TH2F*> > &TH2Fs, int &num_TH2Fs, vector<string> &TH2F_names, vector<int> &TH2F_nbinsx, vector<float> &TH2F_lowx, vector<float> &TH2F_highx, vector<string> &TH2F_axisx, vector<int> &TH2F_nbinsy, vector<float> &TH2F_lowy, vector<float> &TH2F_highy, vector<string> &TH2F_axisy){
 
   num_TH1Fs = 2;
-  char temp_TH1F_names[num_TH1Fs][100] = {"Qsum" , "Width"};
+  char temp_TH1F_names[num_TH1Fs][100] = {"Qsum", "Width"};
   int temp_TH1F_nbinsx[num_TH1Fs] = {64, 25};
   float temp_TH1F_lowx[num_TH1Fs] = {0, 0};
   float temp_TH1F_highx[num_TH1Fs] = {15000, 75};
+  char temp_TH1F_axisx[num_TH1Fs][100] = {"Integrated Charge (fC)", "Width (ns)"};
 
   for (int i=0 ; i < num_TH1Fs ; i++) {
     vector<TH1F*> temp_TH1F_vector; 
@@ -154,6 +135,7 @@ void init(vector<vector<TH1F*> > &TH1Fs, int &num_TH1Fs, vector<string> &TH1F_na
     TH1F_nbinsx.push_back(temp_TH1F_nbinsx[i]);
     TH1F_lowx.push_back(temp_TH1F_lowx[i]);
     TH1F_highx.push_back(temp_TH1F_highx[i]);
+    TH1F_axisx.push_back(temp_TH1F_axisx[i]);
   }
 
   num_TH2Fs = 3;
@@ -161,9 +143,11 @@ void init(vector<vector<TH1F*> > &TH1Fs, int &num_TH1Fs, vector<string> &TH1F_na
   int temp_TH2F_nbinsx[num_TH2Fs] = {10, 10, 10};
   float temp_TH2F_lowx[num_TH2Fs] = {-0.5, -0.5, -0.5};
   float temp_TH2F_highx[num_TH2Fs] = {9.5, 9.5, 9.5};
+  char temp_TH2F_axisx[num_TH2Fs][100] = {"TS" , "TS", "TS"}; 
   int temp_TH2F_nbinsy[num_TH2Fs] = {256, 64, 32};
   float temp_TH2F_lowy[num_TH2Fs] = {-0.5, -0.5, -0.5};
   float temp_TH2F_highy[num_TH2Fs] = {255.5, 63.5, 31.5};  
+  char temp_TH2F_axisy[num_TH2Fs][100] = {"ADC counts" , "leTDC value (0.5 ns)", "teTDC value (16/25 ns)"}; 
 
   for (int i=0 ; i < num_TH2Fs ; i++) {
     vector<TH2F*> temp_TH2F_vector;
@@ -172,9 +156,11 @@ void init(vector<vector<TH1F*> > &TH1Fs, int &num_TH1Fs, vector<string> &TH1F_na
     TH2F_nbinsx.push_back(temp_TH2F_nbinsx[i]);
     TH2F_lowx.push_back(temp_TH2F_lowx[i]);
     TH2F_highx.push_back(temp_TH2F_highx[i]);
+    TH2F_axisx.push_back(temp_TH2F_axisx[i]);
     TH2F_nbinsy.push_back(temp_TH2F_nbinsy[i]);
     TH2F_lowy.push_back(temp_TH2F_lowy[i]);
     TH2F_highy.push_back(temp_TH2F_highy[i]);
+    TH2F_axisy.push_back(temp_TH2F_axisy[i]);
   }
 
 }
@@ -201,7 +187,7 @@ loop_vars pre_loop() {
   return output;
 }
 
-loop_vars loop(int nTS, int nCH, QIE10DataFrame digis, loop_vars prevars, vector<vector<TH1F*> > &TH1Fs, vector<vector<TH2F*> > &TH2Fs) {
+loop_vars loop(int nTS, int nCH, QIE10DataFrame digis, loop_vars prevars, vector<vector<TH1F*> > &TH1Fs, vector<string> &TH1F_names, vector<vector<TH2F*> > &TH2Fs, vector<string> &TH2F_names) {
 
   int tTS = digis.samples();
 
@@ -237,37 +223,17 @@ loop_vars loop(int nTS, int nCH, QIE10DataFrame digis, loop_vars prevars, vector
   
   return prevars;
 
-  //  _qie10Info.pulse[nCH][nTS] = charge;
-  //  _qie10Info.pulse_adc[nCH][nTS] = adc;
-  //  _qie10Info.soi[nCH][nTS] = soi;
-
 }
 
-void post_loop(int nCH, loop_vars prevars, vector<vector<TH1F*> > &TH1Fs) {
+void post_loop(int nCH, loop_vars prevars, vector<vector<TH1F*> > &TH1Fs, vector<string> &TH1F_names) {
 
   // log output
   //cout << endl;
-  
+
   TH1Fs[0][nCH]->Fill( prevars.qsum );
   
 }
 
-/*
-struct TQIE10Info
-{
-  int numChs;
-  int numTS;
-  int iphi[NUMCHS];
-  int ieta[NUMCHS];
-  int depth[NUMCHS];
-  double pulse[NUMCHS][NUMTS];
-  double ped[NUMCHS];
-  double pulse_adc[NUMCHS][NUMTS];
-  double ped_adc[NUMCHS];
-  bool link_error[NUMCHS];
-  bool soi[NUMCHS][NUMTS];
-};
-*/
 
 //
 // class declaration
@@ -295,44 +261,27 @@ private:
   string _outFileName;
   int _verbosity;
 
-  //  TQIE10Info _qie10Info;
-
   char histoName[100];
 
-  /*
-  // in external file
-  char TH1F_names[_num_TH1Fs][100] = {"Qsum" , "Width"};
-  int TH1F_nbinsx[_num_TH1Fs] = {64, 25};
-  float TH1F_lowx[_num_TH1Fs] = {0, 0};
-  float TH1F_highx[_num_TH1Fs] = {15000, 75};
-
-  // in external file    
-  char TH2F_names[_num_TH2Fs][100] = {"ADCpulse", "TDCpulse", "teTDCpulse"};
-  int TH2F_nbinsx[_num_TH2Fs] = {10, 10, 10};
-  float TH2F_lowx[_num_TH2Fs] = {-0.5, -0.5, -0.5};
-  float TH2F_highx[_num_TH2Fs] = {9.5, 9.5, 9.5};
-  int TH2F_nbinsy[_num_TH2Fs] = {256, 64, 32};
-  float TH2F_lowy[_num_TH2Fs] = {-0.5, -0.5, -0.5};
-  float TH2F_highy[_num_TH2Fs] = {255.5, 63.5, 31.5};
-  */
-
   vector<vector<TH1F*> > TH1Fs;
+  int _num_TH1Fs;
   vector<string> TH1F_names;
   vector<int> TH1F_nbinsx;
   vector<float> TH1F_lowx;
   vector<float> TH1F_highx;
+  vector<string> TH1F_axisx;
 
   vector<vector<TH2F*> > TH2Fs;
+  int _num_TH2Fs;
   vector<string> TH2F_names;
   vector<int> TH2F_nbinsx;
   vector<float> TH2F_lowx;
   vector<float> TH2F_highx;
+  vector<string> TH2F_axisx;
   vector<int> TH2F_nbinsy;
   vector<float> TH2F_lowy;
   vector<float> TH2F_highy;
-
-  int _num_TH1Fs;
-  int _num_TH2Fs;
+  vector<string> TH2F_axisy;
 
   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
   virtual void endRun(edm::Run const&, edm::EventSetup const&);
@@ -380,8 +329,16 @@ HF_refl_analyzer::HF_refl_analyzer(const edm::ParameterSet& iConfig) :
 
   //  init_TH1Fs(TH1Fs,TH2Fs);
 
-  init(TH1Fs,_num_TH1Fs,TH1F_names,TH1F_nbinsx,TH1F_lowx,TH1F_highx,TH2Fs,_num_TH2Fs,TH2F_names,TH2F_nbinsx,TH2F_lowx,TH2F_highx,TH2F_nbinsy,TH2F_lowy,TH2F_highy);
+  init(TH1Fs,_num_TH1Fs,TH1F_names,TH1F_nbinsx,TH1F_lowx,TH1F_highx,TH1F_axisx,TH2Fs,_num_TH2Fs,TH2F_names,TH2F_nbinsx,TH2F_lowx,TH2F_highx,TH2F_axisx,TH2F_nbinsy,TH2F_lowy,TH2F_highy,TH2F_axisy);
 
+  for (int i = 0 ; i < _num_TH1Fs ; i++) {
+    _file->mkdir(TH1F_names[i].c_str());
+  }
+
+  for (int i = 0 ; i < _num_TH2Fs ; i++) {
+    _file->mkdir(TH2F_names[i].c_str());
+  }
+  
   _event_num = 0;
 
 }
@@ -393,7 +350,7 @@ HF_refl_analyzer::~HF_refl_analyzer()
 
 
   for (int i = 0 ; i < _num_TH1Fs ; i++) {
-
+    _file->cd(TH1F_names[i].c_str());
     for( unsigned int j = 0 ; j < TH1Fs[0].size() ; j++ ){
       TH1Fs[i][j]->Write();
     }
@@ -401,7 +358,7 @@ HF_refl_analyzer::~HF_refl_analyzer()
   }
 
   for (int i = 0 ; i < _num_TH2Fs ; i++) {
-
+    _file->cd(TH2F_names[i].c_str());
     for( unsigned int j = 0 ; j < TH2Fs[0].size() ; j++ ){    
       TH2Fs[i][j]->Write();
     }
@@ -444,18 +401,18 @@ void HF_refl_analyzer::getData(const edm::Event &iEvent, const edm::EventSetup &
     if( TH1Fs[0].size() <= j ){
 
       for (int i = 0 ; i < _num_TH1Fs ; i++) {
-
+	_file->cd(TH1F_names[i].c_str());
 	sprintf(histoName,"%s_iEta%i_iPhi%i_Depth%i",TH1F_names.at(i).c_str(),ieta,iphi,(depth-1)/2+1);
 	TH1Fs[i].push_back(new TH1F(histoName,histoName,TH1F_nbinsx[i],TH1F_lowx[i],TH1F_highx[i]));
-
-
+	TH1Fs[i].back()->GetXaxis()->SetTitle(TH1F_axisx.at(i).c_str());
       }
       
       for (int i = 0 ; i < _num_TH2Fs ; i++) {
-
+	_file->cd(TH2F_names[i].c_str());
 	sprintf(histoName,"%s_iEta%i_iPhi%i_Depth%i",TH2F_names.at(i).c_str(),ieta,iphi,(depth-1)/2+1);
 	TH2Fs[i].push_back(new TH2F(histoName,histoName,TH2F_nbinsx[i],TH2F_lowx[i],TH2F_highx[i],TH2F_nbinsy[i],TH2F_lowy[i],TH2F_highy[i]));      
- 
+	TH2Fs[i].back()->GetXaxis()->SetTitle(TH2F_axisx.at(i).c_str());
+	TH2Fs[i].back()->GetYaxis()->SetTitle(TH2F_axisy.at(i).c_str());
       }      
       
     }
@@ -487,28 +444,19 @@ void HF_refl_analyzer::getData(const edm::Event &iEvent, const edm::EventSetup &
     for(int i=0; i<nTS; ++i)
       {
 
-	prevars = loop(i,j,qie10df,prevars,TH1Fs,TH2Fs);
+	prevars = loop(i,j,qie10df,prevars,TH1Fs,TH1F_names,TH2Fs,TH2F_names);
 
       }
 
     //******** POSTLOOP ********
 
-    post_loop(j,prevars,TH1Fs);
+    post_loop(j,prevars,TH1Fs,TH1F_names);
 
     if (_verbosity>0)
       std::cout << "The pedestal for this channel is " << prevars.adcped << "ADC counts and " << prevars.qped << " fC" << std::endl;
   
-    // -------------------------------------
-    // --    Set the Branched arrays      --
-    // -------------------------------------
-    /*
-    _qie10Info.iphi[j] = iphi;
-    _qie10Info.ieta[j] = ieta;
-    _qie10Info.depth[j] = depth;
-    _qie10Info.ped[j] = prevars.qped;
-    _qie10Info.ped_adc[j] = prevars.adcped;
-    _qie10Info.link_error[j] = qie10df.linkError();
-    */  
+    //_qie10Info.link_error[j] = qie10df.linkError();
+  
   }
 
   //_qie10Info.numChs = qie10dc.size();
