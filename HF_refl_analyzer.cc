@@ -60,6 +60,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <vector>
 
 using namespace std;
 
@@ -118,6 +119,7 @@ double adc2fC_QIE10_refl[NUMADCS]={
 
 };
 
+/*
 void init_TH1Fs(vector<vector<TH1F*> > &TH1Fs, vector<vector<TH2F*> > &TH2Fs){
 
   vector<TH1F*> QSum;
@@ -135,6 +137,48 @@ void init_TH1Fs(vector<vector<TH1F*> > &TH1Fs, vector<vector<TH2F*> > &TH2Fs){
   TH2Fs.push_back(teTDCpulse);
 
 }
+*/
+
+void init(vector<vector<TH1F*> > &TH1Fs, int &num_TH1Fs, vector<string> &TH1F_names, vector<int> &TH1F_nbinsx, vector<float> &TH1F_lowx, vector<float> &TH1F_highx, vector<vector<TH2F*> > &TH2Fs, int &num_TH2Fs, vector<string> &TH2F_names, vector<int> &TH2F_nbinsx, vector<float> &TH2F_lowx, vector<float> &TH2F_highx, vector<int> &TH2F_nbinsy, vector<float> &TH2F_lowy, vector<float> &TH2F_highy){
+
+  num_TH1Fs = 2;
+  char temp_TH1F_names[num_TH1Fs][100] = {"Qsum" , "Width"};
+  int temp_TH1F_nbinsx[num_TH1Fs] = {64, 25};
+  float temp_TH1F_lowx[num_TH1Fs] = {0, 0};
+  float temp_TH1F_highx[num_TH1Fs] = {15000, 75};
+
+  for (int i=0 ; i < num_TH1Fs ; i++) {
+    vector<TH1F*> temp_TH1F_vector; 
+    TH1Fs.push_back(temp_TH1F_vector);
+    TH1F_names.push_back(temp_TH1F_names[i]);
+    TH1F_nbinsx.push_back(temp_TH1F_nbinsx[i]);
+    TH1F_lowx.push_back(temp_TH1F_lowx[i]);
+    TH1F_highx.push_back(temp_TH1F_highx[i]);
+  }
+
+  num_TH2Fs = 3;
+  char temp_TH2F_names[num_TH2Fs][100] = {"ADCpulse", "TDCpulse", "teTDCpulse"};
+  int temp_TH2F_nbinsx[num_TH2Fs] = {10, 10, 10};
+  float temp_TH2F_lowx[num_TH2Fs] = {-0.5, -0.5, -0.5};
+  float temp_TH2F_highx[num_TH2Fs] = {9.5, 9.5, 9.5};
+  int temp_TH2F_nbinsy[num_TH2Fs] = {256, 64, 32};
+  float temp_TH2F_lowy[num_TH2Fs] = {-0.5, -0.5, -0.5};
+  float temp_TH2F_highy[num_TH2Fs] = {255.5, 63.5, 31.5};  
+
+  for (int i=0 ; i < num_TH2Fs ; i++) {
+    vector<TH2F*> temp_TH2F_vector;
+    TH2Fs.push_back(temp_TH2F_vector);
+    TH2F_names.push_back(temp_TH2F_names[i]);
+    TH2F_nbinsx.push_back(temp_TH2F_nbinsx[i]);
+    TH2F_lowx.push_back(temp_TH2F_lowx[i]);
+    TH2F_highx.push_back(temp_TH2F_highx[i]);
+    TH2F_nbinsy.push_back(temp_TH2F_nbinsy[i]);
+    TH2F_lowy.push_back(temp_TH2F_lowy[i]);
+    TH2F_highy.push_back(temp_TH2F_highy[i]);
+  }
+
+}
+
 
 struct loop_vars {
 
@@ -157,7 +201,9 @@ loop_vars pre_loop() {
   return output;
 }
 
-loop_vars loop(int nTS, int nCH, int tTS, QIE10DataFrame digis, loop_vars prevars, vector<vector<TH1F*> > &TH1Fs, vector<vector<TH2F*> > &TH2Fs) {
+loop_vars loop(int nTS, int nCH, QIE10DataFrame digis, loop_vars prevars, vector<vector<TH1F*> > &TH1Fs, vector<vector<TH2F*> > &TH2Fs) {
+
+  int tTS = digis.samples();
 
   int adc = digis[nTS].adc();
   int tdc = digis[nTS].le_tdc();
@@ -244,15 +290,7 @@ private:
   TFile *_file;
   TTree *_treeQIE10;
 
-  vector<vector<TH1F*> > TH1Fs;
-
-  //in external file
-  static const int _num_TH1Fs = 2;
-
-  vector<vector<TH2F*> > TH2Fs;
-
-  //in external file
-  static const int _num_TH2Fs = 3;
+  int _event_num;
 
   string _outFileName;
   int _verbosity;
@@ -261,6 +299,7 @@ private:
 
   char histoName[100];
 
+  /*
   // in external file
   char TH1F_names[_num_TH1Fs][100] = {"Qsum" , "Width"};
   int TH1F_nbinsx[_num_TH1Fs] = {64, 25};
@@ -275,6 +314,25 @@ private:
   int TH2F_nbinsy[_num_TH2Fs] = {256, 64, 32};
   float TH2F_lowy[_num_TH2Fs] = {-0.5, -0.5, -0.5};
   float TH2F_highy[_num_TH2Fs] = {255.5, 63.5, 31.5};
+  */
+
+  vector<vector<TH1F*> > TH1Fs;
+  vector<string> TH1F_names;
+  vector<int> TH1F_nbinsx;
+  vector<float> TH1F_lowx;
+  vector<float> TH1F_highx;
+
+  vector<vector<TH2F*> > TH2Fs;
+  vector<string> TH2F_names;
+  vector<int> TH2F_nbinsx;
+  vector<float> TH2F_lowx;
+  vector<float> TH2F_highx;
+  vector<int> TH2F_nbinsy;
+  vector<float> TH2F_lowy;
+  vector<float> TH2F_highy;
+
+  int _num_TH1Fs;
+  int _num_TH2Fs;
 
   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
   virtual void endRun(edm::Run const&, edm::EventSetup const&);
@@ -320,7 +378,11 @@ HF_refl_analyzer::HF_refl_analyzer(const edm::ParameterSet& iConfig) :
   _treeQIE10->Branch("soi", _qie10Info.soi, "soi[numChs][50]/O");
   */
 
-  init_TH1Fs(TH1Fs,TH2Fs);
+  //  init_TH1Fs(TH1Fs,TH2Fs);
+
+  init(TH1Fs,_num_TH1Fs,TH1F_names,TH1F_nbinsx,TH1F_lowx,TH1F_highx,TH2Fs,_num_TH2Fs,TH2F_names,TH2F_nbinsx,TH2F_lowx,TH2F_highx,TH2F_nbinsy,TH2F_lowy,TH2F_highy);
+
+  _event_num = 0;
 
 }
 
@@ -383,7 +445,7 @@ void HF_refl_analyzer::getData(const edm::Event &iEvent, const edm::EventSetup &
 
       for (int i = 0 ; i < _num_TH1Fs ; i++) {
 
-	sprintf(histoName,"%s_iEta%i_iPhi%i_Depth%i",TH1F_names[i],ieta,iphi,(depth-1)/2+1);
+	sprintf(histoName,"%s_iEta%i_iPhi%i_Depth%i",TH1F_names.at(i).c_str(),ieta,iphi,(depth-1)/2+1);
 	TH1Fs[i].push_back(new TH1F(histoName,histoName,TH1F_nbinsx[i],TH1F_lowx[i],TH1F_highx[i]));
 
 
@@ -391,7 +453,7 @@ void HF_refl_analyzer::getData(const edm::Event &iEvent, const edm::EventSetup &
       
       for (int i = 0 ; i < _num_TH2Fs ; i++) {
 
-	sprintf(histoName,"%s_iEta%i_iPhi%i_Depth%i",TH2F_names[i],ieta,iphi,(depth-1)/2+1);
+	sprintf(histoName,"%s_iEta%i_iPhi%i_Depth%i",TH2F_names.at(i).c_str(),ieta,iphi,(depth-1)/2+1);
 	TH2Fs[i].push_back(new TH2F(histoName,histoName,TH2F_nbinsx[i],TH2F_lowx[i],TH2F_highx[i],TH2F_nbinsy[i],TH2F_lowy[i],TH2F_highy[i]));      
  
       }      
@@ -425,7 +487,7 @@ void HF_refl_analyzer::getData(const edm::Event &iEvent, const edm::EventSetup &
     for(int i=0; i<nTS; ++i)
       {
 
-	prevars = loop(i,j,nTS,qie10df,prevars,TH1Fs,TH2Fs);
+	prevars = loop(i,j,qie10df,prevars,TH1Fs,TH2Fs);
 
       }
 
@@ -454,6 +516,7 @@ void HF_refl_analyzer::getData(const edm::Event &iEvent, const edm::EventSetup &
 
   //_treeQIE10->Fill();
 
+  _event_num++;
 
   return;
 }
