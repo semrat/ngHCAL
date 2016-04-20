@@ -1,0 +1,124 @@
+#include <vector>
+
+#include "TH1D.h"
+#include "TH2D.h"
+
+// tests
+
+// test 1 -- TH1F
+#define TEST1_NAME "QSum"
+#define TEST1_NBINSX 64
+#define TEST1_LOWX 0
+#define TEST1_HIGHX 15000
+#define TEST1_XTITLE "Integrated Charge (fC)"
+
+// test 2 -- TH1F
+#define TEST2_NAME "Width"
+#define TEST2_NBINSX 25
+#define TEST2_LOWX 0
+#define TEST2_HIGHX 75
+#define TEST2_XTITLE "Width (ns)"
+
+// test 3 -- TH2F
+#define TEST3_NAME "ADCpulse"
+#define TEST3_NBINSX 10
+#define TEST3_LOWX -0.5
+#define TEST3_HIGHX 9.5
+#define TEST3_XTITLE "TS"
+#define TEST3_NBINSY 256
+#define TEST3_LOWY -0.5
+#define TEST3_HIGHY 255.5
+#define TEST3_YTITLE "ADC counts"
+
+// test 4 -- TH2F
+#define TEST4_NAME "leTDCpulse"
+#define TEST4_NBINSX 10
+#define TEST4_LOWX -0.5
+#define TEST4_HIGHX 9.5
+#define TEST4_XTITLE "TS"
+#define TEST4_NBINSY 64
+#define TEST4_LOWY -0.5
+#define TEST4_HIGHY 63.5
+#define TEST4_YTITLE "TDC counts (0.5 ns)"
+
+// test 5 -- TH2F
+#define TEST5_NAME "teTDCpulse"
+#define TEST5_NBINSX 10
+#define TEST5_LOWX -0.5
+#define TEST5_HIGHX 9.5
+#define TEST5_XTITLE "TS"
+#define TEST5_NBINSY 32
+#define TEST5_LOWY -0.5
+#define TEST5_HIGHY 31.5
+#define TEST5_YTITLE "TDC counts (25/16 ns)"
+
+// suites --- ADD SUITE NUMBER INPUT
+
+// suite 1 - tests: 1 2 3 4 5
+#define SUITE1_TH1F_NUM 2
+#define SUITE1_TH1F_NAMES TEST1_NAME , TEST2_NAME
+#define SUITE1_TH1F_NBINSX TEST1_NBINSX , TEST2_NBINSX
+#define SUITE1_TH1F_LOWX TEST1_LOWX , TEST2_LOWX
+#define SUITE1_TH1F_HIGHX TEST1_HIGHX , TEST2_HIGHX
+#define SUITE1_TH1F_XTITLES TEST1_XTITLE , TEST2_XTITLE
+#define SUITE1_TH2F_NUM 3
+#define SUITE1_TH2F_NAMES TEST3_NAME , TEST4_NAME , TEST5_NAME
+#define SUITE1_TH2F_NBINSX TEST3_NBINSX , TEST4_NBINSX , TEST5_NBINSX
+#define SUITE1_TH2F_LOWX TEST3_LOWX , TEST4_LOWX , TEST5_LOWX
+#define SUITE1_TH2F_HIGHX TEST3_HIGHX , TEST4_HIGHX , TEST5_HIGHX
+#define SUITE1_TH2F_XTITLES TEST3_XTITLE , TEST4_XTITLE , TEST5_XTITLE
+#define SUITE1_TH2F_NBINSY TEST3_NBINSY , TEST4_NBINSY , TEST5_NBINSY
+#define SUITE1_TH2F_LOWY TEST3_LOWY , TEST4_LOWY , TEST5_LOWY
+#define SUITE1_TH2F_HIGHY TEST3_HIGHY , TEST4_HIGHY , TEST5_HIGHY
+#define SUITE1_TH2F_YTITLES TEST3_YTITLE , TEST4_YTITLE , TEST5_YTITLE
+
+using namespace std;
+
+void init(vector<vector<TH1F*> > &TH1Fs, int &num_TH1Fs, vector<string> &TH1F_names, vector<int> &TH1F_nbinsx, vector<float> &TH1F_lowx, vector<float> &TH1F_highx, vector<string> &TH1F_axisx, vector<vector<TH2F*> > &TH2Fs, int &num_TH2Fs, vector<string> &TH2F_names, vector<int> &TH2F_nbinsx, vector<float> &TH2F_lowx, vector<float> &TH2F_highx, vector<string> &TH2F_axisx, vector<int> &TH2F_nbinsy, vector<float> &TH2F_lowy, vector<float> &TH2F_highy, vector<string> &TH2F_axisy){
+
+
+  // suite 1 - tests: 1 2 3 4 5
+
+  num_TH1Fs = SUITE1_TH1F_NUM;
+  char temp_TH1F_names[num_TH1Fs][100] = {SUITE1_TH1F_NAMES};
+  int temp_TH1F_nbinsx[num_TH1Fs] = {SUITE1_TH1F_NBINSX};
+  float temp_TH1F_lowx[num_TH1Fs] = {SUITE1_TH1F_LOWX};
+  float temp_TH1F_highx[num_TH1Fs] = {SUITE1_TH1F_HIGHX};
+  char temp_TH1F_axisx[num_TH1Fs][100] = {SUITE1_TH1F_XTITLES};
+
+  num_TH2Fs = SUITE1_TH2F_NUM;
+  char temp_TH2F_names[num_TH2Fs][100] = {SUITE1_TH2F_NAMES};
+  int temp_TH2F_nbinsx[num_TH2Fs] = {SUITE1_TH2F_NBINSX};
+  float temp_TH2F_lowx[num_TH2Fs] = {SUITE1_TH2F_LOWX};
+  float temp_TH2F_highx[num_TH2Fs] = {SUITE1_TH2F_HIGHX};
+  char temp_TH2F_axisx[num_TH2Fs][100] = {SUITE1_TH2F_XTITLES}; 
+  int temp_TH2F_nbinsy[num_TH2Fs] = {SUITE1_TH2F_NBINSY};
+  float temp_TH2F_lowy[num_TH2Fs] = {SUITE1_TH2F_LOWY};
+  float temp_TH2F_highy[num_TH2Fs] = {SUITE1_TH2F_HIGHY};  
+  char temp_TH2F_axisy[num_TH2Fs][100] = {SUITE1_TH2F_YTITLES}; 
+
+  for (int i=0 ; i < num_TH1Fs ; i++) {
+    vector<TH1F*> temp_TH1F_vector; 
+    TH1Fs.push_back(temp_TH1F_vector);
+    TH1F_names.push_back(temp_TH1F_names[i]);
+    TH1F_nbinsx.push_back(temp_TH1F_nbinsx[i]);
+    TH1F_lowx.push_back(temp_TH1F_lowx[i]);
+    TH1F_highx.push_back(temp_TH1F_highx[i]);
+    TH1F_axisx.push_back(temp_TH1F_axisx[i]);
+  }
+
+  for (int i=0 ; i < num_TH2Fs ; i++) {
+    vector<TH2F*> temp_TH2F_vector;
+    TH2Fs.push_back(temp_TH2F_vector);
+    TH2F_names.push_back(temp_TH2F_names[i]);
+    TH2F_nbinsx.push_back(temp_TH2F_nbinsx[i]);
+    TH2F_lowx.push_back(temp_TH2F_lowx[i]);
+    TH2F_highx.push_back(temp_TH2F_highx[i]);
+    TH2F_axisx.push_back(temp_TH2F_axisx[i]);
+    TH2F_nbinsy.push_back(temp_TH2F_nbinsy[i]);
+    TH2F_lowy.push_back(temp_TH2F_lowy[i]);
+    TH2F_highy.push_back(temp_TH2F_highy[i]);
+    TH2F_axisy.push_back(temp_TH2F_axisy[i]);
+  }
+
+}
