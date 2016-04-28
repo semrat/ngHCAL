@@ -1,0 +1,180 @@
+# any line STARTING with '#' is a comment
+
+# start each definition with <start_definition> and end with <end_definition>, each on it's own line
+# every definition requires a name and type at minimum
+
+# blocks must be declared AFTER name and type
+
+# to fill a histogram, use the <fill> tag followed by the arguments to ->Fill()
+      # example: <fill> (nTS, adc)
+
+###########################################
+<start_definition>
+name = "General"
+type = null
+
+loop_vars = <start_block>
+  int adcped = 3;
+  float qped = adc2fC_QIE10_refl[ adcped ];
+<end_block>
+
+loop = <start_block>
+  int tTS = digis.samples();
+  int adc = digis[nTS].adc();
+  int tdc = digis[nTS].le_tdc();
+  int te_tdc = digis[nTS].te_tdc();
+  int capid = digis[nTS].capid();
+  int soi = digis[nTS].soi();
+  float charge = adc2fC_QIE10_refl[ adc ];
+<end_block>
+
+<end_definition>
+###########################################
+<start_definition>
+name = "QSum"
+type = TH1F
+nbinsx = 64
+lowx = 0 
+highx = 64
+titlex = "Integrated Charge (fC)"
+
+loop_vars = <start_block>
+  float qsum;
+<end_block>
+
+pre_loop = <start_block>
+  prevars.qsum = 0;
+<end_block>
+
+loop = <start_block>
+  prevars.qsum += (charge - prevars.qped);
+<end_block>
+
+post_loop = <start_block>
+  <fill> ( prevars.qsum )
+<end_block>
+
+<end_definition>
+###########################################
+<start_definition>
+name = "Width"
+type = TH1F
+nbinsx = 25
+lowx = 0
+highx = 75
+titlex = "Width (ns)"
+
+loop_vars = <start_block>
+  int main;
+<end_block>
+
+pre_loop = <start_block>
+  prevars.main = 1;
+<end_block>
+
+loop = <start_block>
+  if ( (0 < te_tdc) && (te_tdc < 16) ) {
+    if (nTS != tTS-1) {
+      for (int k=nTS; k<tTS; k++) {
+        if ( (digis[k].le_tdc() != 63) && (digis[k].le_tdc() != 62) ) {
+          if (prevars.main ==1) {
+            float wid = ((25.0/16.0)*te_tdc) + ((2 + nTS - k)*25) - ((25.0/64.0)*digis[k].le_tdc());
+            <fill> ( wid )
+            prevars.main = 0;
+          }
+        }
+      }
+    }
+  }
+<end_block>
+
+<end_definition>
+##########################################
+<start_definition>
+name = "ADCpulse"
+type = TH2F
+nbinsx = 10
+lowx = -0.5
+highx = 9.5
+titlex = "TS"
+nbinsy = 256
+lowy = -0.5
+highy = 255.5
+titley = "ADC Counts"
+
+loop = <start_block>
+  <fill> ( nTS, adc );
+<end_block>
+
+<end_definition>
+##########################################
+<start_definition>
+name = "leTDCpulse"
+type = TH2F
+nbinsx = 10
+lowx = -0.5
+highx = 9.5
+titlex = "TS"
+nbinsy = 64
+lowy = -0.5
+highy = 63.5
+titley = "TDC Counts (0.5 ns)"
+
+loop = <start_block>
+  <fill> ( nTS, le_tdc );
+<end_block>
+
+<end_definition>
+##########################################
+<start_definition>
+name = "teTDCpulse"
+type = TH2F
+nbinsx = 10
+lowx = -0.5
+highx = 9.5
+titlex = "TS"
+nbinsy = 32
+lowy = -0.5
+highy = 31.5
+titley = "TDC Counts (25/16 ns)"
+
+loop = <start_block>
+  <fill> ( nTS, te_tdc );
+<end_block>
+
+<end_definition>
+##########################################
+<start_definition>
+name = "Qpulse"
+type = TH2F
+nbinsx = 10
+lowx = -0.5
+highx = 9.5
+titlex = "TS"
+nbinsy = 256
+lowy = 0
+highy = 40000
+titley = "Q (fC)"
+
+loop = <start_block>
+  <fill> ( nTS, charge );
+<end_block>
+
+<end_definition>
+#############################################
+<start_suite>
+name = "full"
+code = 0
+TH1F = "QSum", "Width" 
+TH2F = "ADCpulse", "leTDCpulse", "teTDCpulse", "Qpulse"
+null = "General"
+<end_suite>
+############################################
+<start_suite>
+name = "Qonly"
+code = 1
+TH1F = "QSum" 
+TH2F = "ADCpulse", "Qpulse"
+null = "General"
+<end_suite>
+############################################
