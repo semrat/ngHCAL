@@ -1,0 +1,1 @@
+rsync -avv -e "ssh -A `whoami`@cms904usr ssh" hcal904daq01:/tmp/*.root /afs/cern.ch/work/j/jmariano/public/904_runs | grep -v uptodate
