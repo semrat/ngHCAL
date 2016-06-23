@@ -1,7 +1,0 @@
-#i crate slot top/bottom dcc spigot fiber fiber-channel  subdet  ieta  iphi  depth
-
-# uTCA QIE10.2015
-420075C 50 12 u 0 0 0 0 HF 1 1 1
-
-# uTCA QIE10.2015
-420075C 50 12 u 0 0 6 0 HF 2 1 1

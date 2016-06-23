@@ -1,3 +1,0 @@
-#!/bin/bash
-
-python ./generate.py && scram b
