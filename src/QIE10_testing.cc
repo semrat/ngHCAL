@@ -25,6 +25,7 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
+
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
@@ -32,18 +33,27 @@
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
+
+#include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBSlowDataUnpacker.h"
+
+#include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
+#include "TBDataFormats/HcalTBObjects/interface/HcalTBEventPosition.h"
 
 #include "HFcommissioning/Analysis/interface/ADC_Conversion.h"
 
@@ -61,6 +71,7 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <map>
 
 #include "adc2q.h"
 #include "QIE10_init.h"
@@ -187,8 +198,14 @@ private:
 
   edm::EDGetTokenT<HcalDataFrameContainer<QIE10DataFrame> > tok_QIE10DigiCollection_;
   edm::EDGetTokenT<HFDigiCollection> hf_token;
+  edm::EDGetTokenT<FEDRawDataCollection> raw_token;  
   edm::Handle<QIE10DigiCollection> qie10DigiCollection;
-  
+  edm::Handle<FEDRawDataCollection> raw_collection;  
+
+  hcaltb::HcalTBSlowDataUnpacker sdp;
+  std::map<std::string,std::string> strings;
+  std::map<std::string,double> numerics;
+
 };
 
 
@@ -200,6 +217,7 @@ QIE10_testing::QIE10_testing(const edm::ParameterSet& iConfig) :
 
   tok_QIE10DigiCollection_ = consumes<HcalDataFrameContainer<QIE10DataFrame> >(edm::InputTag("hcalDigis"));
   hf_token = consumes<HFDigiCollection>(edm::InputTag("hcalDigis"));
+  raw_token = consumes<FEDRawDataCollection>(edm::InputTag("source"));
 
   _file = new TFile(_outFileName.c_str(), "recreate");
 
@@ -294,6 +312,17 @@ void QIE10_testing::getData(const edm::Event &iEvent, const edm::EventSetup &iSe
 
   //  Extracting All the Collections containing useful Info
   iEvent.getByToken(tok_QIE10DigiCollection_,qie10DigiCollection);
+
+  iEvent.getByToken(raw_token,raw_collection);
+
+  sdp.unpackMaps(raw_collection->FEDData(14),strings,numerics);
+
+  if (_event_num%100 == 0) {
+    for (std::map<std::string,std::string>::const_iterator j = strings.begin() ; j != strings.end() ; j++) {
+      cout << "'" << j->first << "' => '" << j->second << "'\n";
+    }
+  }
+
   const QIE10DigiCollection& qie10dc=*(qie10DigiCollection);
 
   if (_verbosity>0){

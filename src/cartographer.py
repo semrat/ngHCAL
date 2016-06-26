@@ -8,14 +8,6 @@ cfgfile = open(cfgfile_name,'r')
 lines = cfgfile.readlines()
 cfgfile.close()
 
-in_sd = 0
-in_sp = 0
-in_sl = 0
-in_qi = 0
-in_he = 0
-default = 0 
-line_num = 0
-
 n_sp = {}
 n_sl = {}
 n_qi = {}
@@ -24,10 +16,8 @@ data = {}
 data_sl = {}
 data_sp = {}
     
-sd = 'Null'
-sp = 0
-sl = 0
-qi = 0
+BE = []
+uHTRs = {}
 
 def parse_header():
     for sd in data:
@@ -84,8 +74,6 @@ def print_emap():
     emapfile.write('\n')
 
     ID = '42075C'
-    BE = 53
-    uHTRs = [ 1 , 2 , 3 , 4, 5 , 6 , 7 , 8 ]
     fibers = 24
     channels = 4
 
@@ -99,8 +87,8 @@ def print_emap():
                 for k in range(len(data[sd][i][j])):
                     if data[sd][i][j][k] == 1:                        
                         emapfile.write(str(ID) + " ")
-                        emapfile.write(str(BE) + " ")
-                        emapfile.write(str(uHTRs[uhtr_counter]) + " ")
+                        emapfile.write(str(BE[0]) + " ")
+                        emapfile.write(str(uHTRs[BE[0]][uhtr_counter]) + " ")
                         emapfile.write("u 0 0 ")
                         emapfile.write(str(fiber_counter).rjust(2) + " ")
                         emapfile.write(str(channel_counter) + " ")
@@ -208,6 +196,24 @@ def print_mask():
     
     maskfile.close()
 
+in_sd = 0
+in_sp = 0
+in_sl = 0
+in_qi = 0
+in_he = 0
+in_be = 0
+in_cr = 0
+in_uh = 0
+default = 0 
+line_num = 0
+
+sd = 'Null'
+sp = 0
+sl = 0
+qi = 0
+cr = 0
+uh = []
+
 for line in lines:
 
     if ((line.strip() != '') and (line.strip()[0] != '#')):
@@ -244,6 +250,36 @@ for line in lines:
                 n_sl[sd] = int(line.split('=')[1].strip())
             if line.find('<num_qies>') != -1:
                 n_qi[sd] = int(line.split('=')[1].strip())
+
+        if line.find('<backend>') != -1:
+            in_be = 1
+        if (line.find('</backend>') != -1):
+            if (in_be == 1):
+                in_be = 0
+            else:
+                print 'ERROR: </backend> without matching <backend>' + ': line ' + str(line_num)
+
+        if line.find('<crate>') != -1:
+            if (in_be == 1):
+                in_cr = 1
+            else:
+                print 'ERROR: <crate> declared outside of backend block' + ': line ' + str(line_num)
+        if (line.find('</crate>') != -1):
+            if (in_be == 1):
+                in_cr = 0
+            else:
+                print 'ERROR: </crate> without matching <crate>' + ': line ' + str(line_num)
+
+        if line.find('<uhtr>') != -1:
+            if (in_cr == 1):
+                in_uh = 1
+            else:
+                print 'ERROR: <uhtr> declared outside of spigot block' + ': line ' + str(line_num)
+        if (line.find('</uhtr>') != -1):
+            if (in_cr == 1):
+                in_uh = 0
+            else:
+                print 'ERROR: </uhtr> without matching <uhtr>' + ': line ' + str(line_num)
 
         if line.find('<subdetector>') != -1:
             in_sd = 1
@@ -285,6 +321,29 @@ for line in lines:
                 in_qi = 0
             else:
                 print 'ERROR: </qie> without matching <qie>' + ': line ' + str(line_num)
+
+        if (in_be == 1) and (in_cr == 1) and (in_uh != 1):
+            if line.split('=')[0].strip() == 'add_crate':
+                cr = line.split('=')[1].strip()
+                if cr not in BE:
+                    BE.append(cr)
+
+        if (in_be == 1) and (in_cr == 1) and (in_uh != 1):
+            if line.split('=')[0].strip() == 'add_crate':
+                cr = line.split('=')[1].strip()
+                if cr not in BE:
+                    BE.append(cr)
+
+        if (in_be == 1) and (in_cr == 1) and (in_uh == 1):
+            if line.split('=')[0].strip() == 'add_uhtr':
+                if line.split('=')[1].find('A') != -1:
+                    uh = range(1,12)
+                elif line.split('=')[1].find('(') != -1:
+                    for each in line.split('=')[1].split('(')[1].split(')')[0].split(','):
+                        uh.append(int(each.strip()))
+                else:
+                    uh = [int(line.split('=')[1].strip())]
+                uHTRs[cr] = uh
 
         if (in_sd == 1) and (in_sp != 1) and (in_sl != 1) and (in_qi != 1):
             if line.split('=')[0].strip() == 'add_subdetector':

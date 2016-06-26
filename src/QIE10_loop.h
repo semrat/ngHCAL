@@ -89,6 +89,13 @@ loop_vars pre_event_loop(int suite_code, int _event_num, TQIE10Info &_qie10Info,
 
   }
 
+// --- Suite 4: "PhaseSampler" ---
+
+  if (suite_code == 4) {
+
+
+  }
+
   return prevars;
 
 }
@@ -110,8 +117,26 @@ loop_vars pre_loop(int suite_code, loop_vars prevars, QIE10DataFrame digis, int 
       prevars.qav_ped_CID[jj] = 0;
       prevars.cid_count[jj] = 0;
     }
+    int tTS_EV = digis.samples();
+    int ADCsum_EV = 0;
+    for (int loopTS=0 ; loopTS < tTS_EV ; loopTS++) {
+      ADCsum_EV += digis[loopTS].adc();
+    }
+    float avADC_EV = (float)ADCsum_EV / (float)tTS_EV;
+    if (_event_num < 3300) {
+      TH2F_perEVs[4]->Fill ( _event_num, avADC_EV );
+    }
     prevars.qsum_ped_CH = 0;
     prevars.first_tdc_CH = 1;
+    int tTS = digis.samples();
+    int ADCsum = 0;
+    for (int loopTS=0 ; loopTS < tTS ; loopTS++) {
+      ADCsum += digis[loopTS].adc();
+    }
+    float avADC = (float)ADCsum / (float)tTS;
+    if (_event_num < 3300) {
+      TH2F_perCHs[3][nCH]->Fill ( _event_num, avADC );
+    }
     DetId detid_loc = digis.detid();
     HcalDetId hcaldetid_loc = HcalDetId(detid_loc);
     int iEta_loc = hcaldetid_loc.ieta();
@@ -178,6 +203,31 @@ loop_vars pre_loop(int suite_code, loop_vars prevars, QIE10DataFrame digis, int 
 
     prevars.first_tdc_EV = 1;
     prevars.first_tdc_CH = 1;
+
+  }
+
+// --- Suite 4: "PhaseSampler" ---
+
+  if (suite_code == 4) {
+
+    int tTS_EV = digis.samples();
+    int ADCsum_EV = 0;
+    for (int loopTS=0 ; loopTS < tTS_EV ; loopTS++) {
+      ADCsum_EV += digis[loopTS].adc();
+    }
+    float avADC_EV = (float)ADCsum_EV / (float)tTS_EV;
+    if (_event_num < 3300) {
+      TH2F_perEVs[0]->Fill ( _event_num, avADC_EV );
+    }
+    int tTS = digis.samples();
+    int ADCsum = 0;
+    for (int loopTS=0 ; loopTS < tTS ; loopTS++) {
+      ADCsum += digis[loopTS].adc();
+    }
+    float avADC = (float)ADCsum / (float)tTS;
+    if (_event_num < 3300) {
+      TH2F_perCHs[0][nCH]->Fill ( _event_num, avADC );
+    }
 
   }
 
@@ -365,6 +415,31 @@ loop_vars loop(int suite_code, loop_vars prevars, QIE10DataFrame digis, int nTS,
 
   }
 
+// --- Suite 4: "PhaseSampler" ---
+
+  if (suite_code == 4) {
+
+    prevars.adcped = prevars.adcped;
+    prevars.qped = prevars.qped;
+    int tTS = digis.samples();
+    tTS = tTS;
+    int adc = digis[nTS].adc();
+    adc = adc;
+    int le_tdc = digis[nTS].le_tdc();
+    le_tdc = le_tdc;
+    int te_tdc = digis[nTS].te_tdc();
+    te_tdc = te_tdc;
+    int capid = digis[nTS].capid();
+    capid = capid;
+    int soi = digis[nTS].soi();
+    soi = soi;
+    float charge = adc2fC_QIE10_refl[ adc ] + 14.45;
+    charge = charge;
+    float acharge = charge - prevars.qped;
+    acharge = acharge;
+
+  }
+
   return prevars;
 
 }
@@ -415,6 +490,13 @@ loop_vars post_loop(int suite_code, loop_vars prevars, QIE10DataFrame digis, int
 
   }
 
+// --- Suite 4: "PhaseSampler" ---
+
+  if (suite_code == 4) {
+
+
+  }
+
   return prevars;
 
 }
@@ -449,6 +531,13 @@ void post_event_loop(int suite_code, loop_vars prevars, int _event_num, TQIE10In
 // --- Suite 3: "AbsoluteTiming" ---
 
   if (suite_code == 3) {
+
+
+  }
+
+// --- Suite 4: "PhaseSampler" ---
+
+  if (suite_code == 4) {
 
 
   }
