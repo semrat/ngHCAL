@@ -68,7 +68,7 @@ process.hcalAnalyzer = cms.EDAnalyzer('QIE10_testing',
         OutFileName = cms.untracked.string('../dat/QIE10testing_'+runNumber+'_'+str(suite_code)+'.root'),
         Verbosity = cms.untracked.int32(0),
         Suite_Code = cms.untracked.int32(suite_code),
-        Sequencer_Flag = cms.untracked.int32(0)
+        Sequencer_Flag = cms.untracked.int32(1)
 )
 
 #

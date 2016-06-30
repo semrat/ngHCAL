@@ -76,6 +76,7 @@
 #include "adc2q.h"
 #include "QIE10_init.h"
 #include "QIE10_loop.h"
+#include "unpack_name.h"
 
 using namespace std;
 
@@ -101,6 +102,7 @@ private:
   string _outFileName;
   int _verbosity;
   int _suite_code;
+  bool _sequencer_flag;
   
   char histoName[100];
   char dirName[100];
@@ -203,8 +205,8 @@ private:
   edm::Handle<FEDRawDataCollection> raw_collection;  
 
   hcaltb::HcalTBSlowDataUnpacker sdp;
-  std::map<std::string,std::string> strings;
-  std::map<std::string,double> numerics;
+  //  std::map<std::string,std::string> strings;
+  //  std::map<std::string,double> numerics;
 
 };
 
@@ -212,7 +214,9 @@ private:
 QIE10_testing::QIE10_testing(const edm::ParameterSet& iConfig) :
   _outFileName(iConfig.getUntrackedParameter<string>("OutFileName")),
   _verbosity(iConfig.getUntrackedParameter<int>("Verbosity")),
-  _suite_code(iConfig.getUntrackedParameter<int>("Suite_Code"))
+  _suite_code(iConfig.getUntrackedParameter<int>("Suite_Code")),
+  _sequencer_flag(iConfig.getUntrackedParameter<int>("Sequencer_Flag"))
+
 {
 
   tok_QIE10DigiCollection_ = consumes<HcalDataFrameContainer<QIE10DataFrame> >(edm::InputTag("hcalDigis"));
@@ -315,12 +319,11 @@ void QIE10_testing::getData(const edm::Event &iEvent, const edm::EventSetup &iSe
 
   iEvent.getByToken(raw_token,raw_collection);
 
-  sdp.unpackMaps(raw_collection->FEDData(14),strings,numerics);
-
-  if (_event_num%100 == 0) {
-    for (std::map<std::string,std::string>::const_iterator j = strings.begin() ; j != strings.end() ; j++) {
-      cout << "'" << j->first << "' => '" << j->second << "'\n";
-    }
+  name_data slow_data;
+  slow_data.parameter = "NULL";
+  slow_data.val = -999.0;
+  if (_sequencer_flag == 1) { 
+    slow_data = unpack_name(raw_collection,sdp,_event_num);
   }
 
   const QIE10DigiCollection& qie10dc=*(qie10DigiCollection);
@@ -370,7 +373,7 @@ void QIE10_testing::getData(const edm::Event &iEvent, const edm::EventSetup &iSe
 
   loop_vars prevars;
   
-  pre_event_loop(_suite_code,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
+  pre_event_loop(slow_data.parameter,slow_data.val,_suite_code,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
 
   for (unsigned int j=0; j < nCH ; j++){
 
@@ -452,20 +455,20 @@ void QIE10_testing::getData(const edm::Event &iEvent, const edm::EventSetup &iSe
         
     //******** PRELOOP ***********
 
-    prevars = pre_loop(_suite_code,prevars,qie10df,j,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
+    prevars = pre_loop(slow_data.parameter,slow_data.val,_suite_code,prevars,qie10df,j,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
 
     //********** LOOP ************
 	
     for(int i=0; i<nTS; ++i)
       {
 
-	prevars = loop(_suite_code,prevars,qie10df,i,j,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
+	prevars = loop(slow_data.parameter,slow_data.val,_suite_code,prevars,qie10df,i,j,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
 
       }
 
     //******** POSTLOOP ********
 
-    post_loop(_suite_code,prevars,qie10df,j,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
+    post_loop(slow_data.parameter,slow_data.val,_suite_code,prevars,qie10df,j,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
 
     if (_verbosity>0)
       std::cout << "The pedestal for this channel is " << prevars.adcped << "ADC counts and " << prevars.qped << " fC" << std::endl;
@@ -481,7 +484,7 @@ void QIE10_testing::getData(const edm::Event &iEvent, const edm::EventSetup &iSe
 
   // ********* POST_EVENT_LOOP *************
 
-  post_event_loop(_suite_code,prevars,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
+  post_event_loop(slow_data.parameter,slow_data.val,_suite_code,prevars,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
 
   _event_num++;
 
