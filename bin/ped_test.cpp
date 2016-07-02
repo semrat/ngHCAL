@@ -30,21 +30,24 @@ using namespace std;
 
 void ped_test(Int_t run_num) {
 
-  float ped_mean_low = 2.0;
-  float ped_mean_high = 6.0;
-  float ped_rms_high = 1.5;
-  float ped_top_low = 30.0;
-  float ped_top_high = 35.0;
-  float ped_slope_low = 2.1;
-  float ped_slope_high = 2.3;
+  float ped_mean_low = 1.5;
+  float ped_mean_high = 6.5;
+  float ped_rms_low = 0.1;
+  float ped_rms_high = 2.0;
+  float ped_top_low = 27.5;
+  float ped_top_high = 37.5;
+  float ped_slope_low = 1.8;
+  float ped_slope_high = 2.6;
 
   float ped_top;
   float ped_slope;
 
   char hist0_name[512];
   char hist1_name[512];
+  char hist2_name[512];
   char file0_name[512];
   char dir_name[512];
+  char figure0_name[512];
 
   sprintf(dir_name,"mkdir ../img/%i",run_num);
   system(dir_name);
@@ -53,12 +56,26 @@ void ped_test(Int_t run_num) {
 
   TH1F *h0_temp = new TH1F();
   TH1F *h1_temp = new TH1F();
+  TH1F *h2_temp = new TH1F();
   TFile *_file0 =  new TFile();
   
   sprintf(file0_name,"../dat/QIE10testing_%i_4.root",run_num);
   _file0 = TFile::Open(file0_name);
 
+  gStyle->SetOptStat(0);
+
+  TCanvas *c1 = new TCanvas("c1","c1",100,100,1024,768);
+  sprintf(hist2_name,"%s/%s","PedScan_qav_EV","PedScan_qav_EV");
+  sprintf(figure0_name,"../img/%i/ped_test/Scan.png",run_num);
+  h2_temp = (TH1F*)_file0->Get(hist2_name);
+  h2_temp->Draw("box");
+  c1->SaveAs(figure0_name);
+  c1->Clear();
+  h2_temp->Delete();
+  
   TF1 *fit_scan = new TF1();
+
+  int occupancy;
 
   bool*** lv2_err_map_mean = create_error_map();
   bool*** lv2_err_map_rms = create_error_map();
@@ -75,11 +92,21 @@ void ped_test(Int_t run_num) {
 	      sprintf(hist1_name,"%s/%s_HF%i_Slot%i_QIE%i","PedScan_qav_CH","PedScan_qav_CH",h+1,s+1,q+1);
 	      h0_temp = (TH1F*)_file0->Get(hist0_name);
 	      h1_temp = (TH1F*)_file0->Get(hist1_name);
-	      if ((h0_temp->GetMean() < ped_mean_low) || (h0_temp->GetMean() > ped_mean_high)) {
+	      if ((h0_temp->GetMean() < ped_mean_low) || (h0_temp->GetMean() > ped_mean_high) || (h0_temp->GetEntries() < 10)) {
 		lv2_err_map_mean[h][s][q] = 0;
 		lv2_err_map_gen[h][s][q] = 0;
 	      }	
-	      if (h0_temp->GetRMS() > ped_rms_high) {
+	      occupancy = 0;
+	      for (int binx=43 ; binx<64 ; binx++) {
+		for (int biny=4 ; biny<14 ; biny++) {
+		  //cout << "binx: " << binx << ", biny: " << biny << ", occupancy: " << h1_temp->GetBinContent(binx,biny) << endl;
+		  occupancy += h1_temp->GetBinContent(binx,biny);
+		}
+	      }
+	      if (occupancy > 0){
+		cout << "HF: " << h+1 << ", SL: " << s+1 << ", QI: " << q+1 << " --OCCUPANCY: " << occupancy << endl;
+	      }
+	      if ( (h0_temp->GetRMS() < ped_rms_low) || (h0_temp->GetRMS() > ped_rms_high)) {
 		lv2_err_map_rms[h][s][q] = 0;
 		lv2_err_map_gen[h][s][q] = 0;
 	      }	
@@ -88,12 +115,12 @@ void ped_test(Int_t run_num) {
 	      h1_temp->Fit("fit_scan","Q");
 	      ped_top = fit_scan->GetParameter(0);
 	      ped_slope = fit_scan->GetParameter(1);	      
-	      cout << "TurnOnPoint: " << ped_top << ", Slope: " << ped_slope << endl;
-	      if ((ped_top > ped_top_high) || (ped_top < ped_top_low)) {
+	      cout << "HF: " << h+1 << ", SL: " << s+1 << ", QI: " << q+1 << " -- TurnOnPoint: " << ped_top << ", Slope: " << ped_slope << endl;
+	      if ((ped_top > ped_top_high) || (ped_top < ped_top_low) || (h1_temp->GetEntries() < 10)) {
 		lv2_err_map_top[h][s][q] = 0;
 		lv2_err_map_gen[h][s][q] = 0;
 	      }	
-	      if ((ped_slope > ped_slope_high) || (ped_slope < ped_slope_low)) {
+	      if ((ped_slope > ped_slope_high) || (ped_slope < ped_slope_low) || (h1_temp->GetEntries() < 10)) {
 		lv2_err_map_slope[h][s][q] = 0;
 		lv2_err_map_gen[h][s][q] = 0;
 	      }	
@@ -108,7 +135,7 @@ void ped_test(Int_t run_num) {
   }
   draw_map(lv2_err_map_mean, run_num, "ped_test", "DefaultPedestalMean");
   draw_map(lv2_err_map_rms, run_num, "ped_test", "DefaultPedestalRMS");
-  draw_map(lv2_err_map_top, run_num, "ped_test", "PedestalScanTurnOnPoint");
+  draw_map(lv2_err_map_top, run_num, "ped_test", "PedestalScanElbow");
   draw_map(lv2_err_map_slope, run_num, "ped_test", "PedestalScanSlope");
   draw_map(lv2_err_map_gen, run_num, "ped_test", "PedestalAll");
 

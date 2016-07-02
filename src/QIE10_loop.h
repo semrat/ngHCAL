@@ -40,6 +40,7 @@ struct loop_vars {
 
   int adcped = 3;
   float qped = adc2fC_QIE10_refl[ adcped ];
+  bool corrupt;
   bool zero_event_CapIDrot_EV;
   int* ch0_cid_ev = new int[10];
   bool zero_event_CapAllign_EV;
@@ -148,6 +149,12 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
 
   if (suite_code == 0) {
 
+    prevars.corrupt = 0;
+    for (int iTS=0 ; iTS<10 ; iTS++) {
+      if (digis[iTS].le_tdc() == 0) {
+        prevars.corrupt = 1;
+      }
+    }
     prevars.zero_event_CapIDrot_EV = 0;
     for (int iTS=1 ; iTS<10 ; iTS++) {
       if (digis[iTS].le_tdc() == 0) {
@@ -184,7 +191,9 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
     }
     float avADC_EV = (float)ADCsum_EV / (float)tTS_EV;
     if (_event_num < 3300) {
-      TH2F_perEVs[5]->Fill ( _event_num, avADC_EV );
+      if (prevars.corrupt == 0) {
+        TH2F_perEVs[5]->Fill ( _event_num, avADC_EV );
+      }
     }
     int tTS_scan_EV = digis.samples();
     int ADCsum_scan_EV = 0;
@@ -192,7 +201,18 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
       ADCsum_scan_EV += digis[loopTS].adc();
     }
     float avADC_scan_EV = (float)ADCsum_scan_EV / (float)tTS_scan_EV;
-    TH2F_perEVs[6]->Fill ( val , avADC_scan_EV );
+    if (prevars.corrupt == 0) {
+      TH2F_perEVs[6]->Fill ( val , avADC_scan_EV );
+    }
+    int tTS_scan_qav_EV = digis.samples();
+    int qsum_scan_EV = 0;
+    for (int loopTS=0 ; loopTS < tTS_scan_qav_EV ; loopTS++) {
+      qsum_scan_EV += adc2fC_QIE10_refl[ digis[loopTS].adc() ] + 14.45;
+    }
+    float qav_scan_EV = (float)qsum_scan_EV / (float)tTS_scan_qav_EV;
+    if (prevars.corrupt == 0) {
+      TH2F_perEVs[7]->Fill ( val , qav_scan_EV );
+    }
     prevars.first_tdc_scan_EV = 1;
     prevars.qsum_ici_ev = 0.0;
     prevars.qsum_qr2_ev = 0.0;
@@ -228,7 +248,9 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
     }
     float avADC = (float)ADCsum / (float)tTS;
     if (_event_num < 3300) {
-      TH2F_perCHs[3][nCH]->Fill ( _event_num, avADC );
+      if (prevars.corrupt == 0) {
+        TH2F_perCHs[3][nCH]->Fill ( _event_num, avADC );
+      }
     }
     int tTS_scan_CH = digis.samples();
     int ADCsum_scan_CH = 0;
@@ -236,14 +258,18 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
       ADCsum_scan_CH += digis[loopTS].adc();
     }
     float avADC_scan_CH = (float)ADCsum_scan_CH / (float)tTS_scan_CH;
-    TH2F_perCHs[4][nCH]->Fill ( val , avADC_scan_CH );
+    if (prevars.corrupt == 0) {
+      TH2F_perCHs[4][nCH]->Fill ( val , avADC_scan_CH );
+    }
     int tTS_scan_qav_CH = digis.samples();
     int qsum_scan_CH = 0;
     for (int loopTS=0 ; loopTS < tTS_scan_qav_CH ; loopTS++) {
       qsum_scan_CH += adc2fC_QIE10_refl[ digis[loopTS].adc() ] + 14.45;
     }
     float qav_scan_CH = (float)qsum_scan_CH / (float)tTS_scan_qav_CH;
-    TH2F_perCHs[6][nCH]->Fill ( val , qav_scan_CH );
+    if (prevars.corrupt == 0) {
+      TH2F_perCHs[6][nCH]->Fill ( val , qav_scan_CH );
+    }
     prevars.first_tdc_scan_CH = 1;
     prevars.qsum_ici_ch = 0.0;
     prevars.qsum_qr2_ch = 0.0;
@@ -315,6 +341,12 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
 
   if (suite_code == 1) {
 
+    prevars.corrupt = 0;
+    for (int iTS=0 ; iTS<10 ; iTS++) {
+      if (digis[iTS].le_tdc() == 0) {
+        prevars.corrupt = 1;
+      }
+    }
     prevars.zero_event_CapIDrot_EV = 0;
     for (int iTS=1 ; iTS<10 ; iTS++) {
       if (digis[iTS].le_tdc() == 0) {
@@ -418,6 +450,12 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
 
   if (suite_code == 2) {
 
+    prevars.corrupt = 0;
+    for (int iTS=0 ; iTS<10 ; iTS++) {
+      if (digis[iTS].le_tdc() == 0) {
+        prevars.corrupt = 1;
+      }
+    }
     prevars.qsum_ped_EV = 0;
     prevars.qav_ped_EV = 0;
     for (int jj=0 ; jj < 4; jj++){
@@ -432,6 +470,12 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
 
   if (suite_code == 3) {
 
+    prevars.corrupt = 0;
+    for (int iTS=0 ; iTS<10 ; iTS++) {
+      if (digis[iTS].le_tdc() == 0) {
+        prevars.corrupt = 1;
+      }
+    }
     prevars.first_tdc_EV = 1;
     prevars.first_tdc_CH = 1;
 
@@ -441,6 +485,12 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
 
   if (suite_code == 4) {
 
+    prevars.corrupt = 0;
+    for (int iTS=0 ; iTS<10 ; iTS++) {
+      if (digis[iTS].le_tdc() == 0) {
+        prevars.corrupt = 1;
+      }
+    }
     int tTS_EV = digis.samples();
     int ADCsum_EV = 0;
     for (int loopTS=0 ; loopTS < tTS_EV ; loopTS++) {
@@ -448,7 +498,9 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
     }
     float avADC_EV = (float)ADCsum_EV / (float)tTS_EV;
     if (_event_num < 3300) {
-      TH2F_perEVs[0]->Fill ( _event_num, avADC_EV );
+      if (prevars.corrupt == 0) {
+        TH2F_perEVs[0]->Fill ( _event_num, avADC_EV );
+      }
     }
     int tTS_scan_EV = digis.samples();
     int ADCsum_scan_EV = 0;
@@ -456,7 +508,18 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
       ADCsum_scan_EV += digis[loopTS].adc();
     }
     float avADC_scan_EV = (float)ADCsum_scan_EV / (float)tTS_scan_EV;
-    TH2F_perEVs[1]->Fill ( val , avADC_scan_EV );
+    if (prevars.corrupt == 0) {
+      TH2F_perEVs[1]->Fill ( val , avADC_scan_EV );
+    }
+    int tTS_scan_qav_EV = digis.samples();
+    int qsum_scan_EV = 0;
+    for (int loopTS=0 ; loopTS < tTS_scan_qav_EV ; loopTS++) {
+      qsum_scan_EV += adc2fC_QIE10_refl[ digis[loopTS].adc() ] + 14.45;
+    }
+    float qav_scan_EV = (float)qsum_scan_EV / (float)tTS_scan_qav_EV;
+    if (prevars.corrupt == 0) {
+      TH2F_perEVs[2]->Fill ( val , qav_scan_EV );
+    }
     int tTS = digis.samples();
     int ADCsum = 0;
     for (int loopTS=0 ; loopTS < tTS ; loopTS++) {
@@ -464,7 +527,9 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
     }
     float avADC = (float)ADCsum / (float)tTS;
     if (_event_num < 3300) {
-      TH2F_perCHs[0][nCH]->Fill ( _event_num, avADC );
+      if (prevars.corrupt == 0) {
+        TH2F_perCHs[0][nCH]->Fill ( _event_num, avADC );
+      }
     }
     int tTS_scan_CH = digis.samples();
     int ADCsum_scan_CH = 0;
@@ -472,14 +537,18 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
       ADCsum_scan_CH += digis[loopTS].adc();
     }
     float avADC_scan_CH = (float)ADCsum_scan_CH / (float)tTS_scan_CH;
-    TH2F_perCHs[1][nCH]->Fill ( val , avADC_scan_CH );
+    if (prevars.corrupt == 0) {
+      TH2F_perCHs[1][nCH]->Fill ( val , avADC_scan_CH );
+    }
     int tTS_scan_qav_CH = digis.samples();
     int qsum_scan_CH = 0;
     for (int loopTS=0 ; loopTS < tTS_scan_qav_CH ; loopTS++) {
       qsum_scan_CH += adc2fC_QIE10_refl[ digis[loopTS].adc() ] + 14.45;
     }
     float qav_scan_CH = (float)qsum_scan_CH / (float)tTS_scan_qav_CH;
-    TH2F_perCHs[3][nCH]->Fill ( val , qav_scan_CH );
+    if (prevars.corrupt == 0) {
+      TH2F_perCHs[3][nCH]->Fill ( val , qav_scan_CH );
+    }
 
   }
 
@@ -487,6 +556,12 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
 
   if (suite_code == 5) {
 
+    prevars.corrupt = 0;
+    for (int iTS=0 ; iTS<10 ; iTS++) {
+      if (digis[iTS].le_tdc() == 0) {
+        prevars.corrupt = 1;
+      }
+    }
     prevars.first_tdc_scan_EV = 1;
     prevars.first_tdc_scan_CH = 1;
 
@@ -496,6 +571,12 @@ loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars p
 
   if (suite_code == 6) {
 
+    prevars.corrupt = 0;
+    for (int iTS=0 ; iTS<10 ; iTS++) {
+      if (digis[iTS].le_tdc() == 0) {
+        prevars.corrupt = 1;
+      }
+    }
     prevars.first_tdc_EV = 1;
     prevars.qsum_qr_ev = 0.0;
     prevars.qmax_qr_ev = 0.0;
@@ -549,14 +630,18 @@ loop_vars loop(std::string parameter, float val, int suite_code, loop_vars preva
     acharge = acharge;
     if (nTS != 0) {
       if (prevars.zero_event_CapIDrot_EV == 0) {
-        TH1F_perEVs[0]->Fill (capid - (digis[nTS-1].capid()+1)%4 );
+        if (_event_num > 2) {
+          TH1F_perEVs[0]->Fill (capid - (digis[nTS-1].capid()+1)%4 );
+        }
       }
     }
     if (nCH == 0) {
       prevars.ch0_cid_ev[nTS] = digis[nTS].capid();
     }
     if (prevars.zero_event_CapAllign_EV == 0) {
-      TH1F_perEVs[1]->Fill (capid - prevars.ch0_cid_ev[nTS]);
+      if (_event_num > 2) {
+        TH1F_perEVs[1]->Fill (capid - prevars.ch0_cid_ev[nTS]);
+      }
     }
     TH1F_perEVs[2]->Fill ( adc );
     prevars.qsum_ped_EV += (charge - prevars.qped);
@@ -567,7 +652,9 @@ loop_vars loop(std::string parameter, float val, int suite_code, loop_vars preva
       TH1F_perEVs[5]->Fill (t_abs);
     }
     if ( val == 38.0 ) {
-      TH1F_perEVs[6]->Fill ( adc );
+      if (prevars.corrupt == 0) {
+        TH1F_perEVs[6]->Fill ( adc );
+      }
     }
     prevars.qsum_qr_ev += charge;
     if ( charge > prevars.qmax_qr_ev ) {
@@ -581,7 +668,9 @@ loop_vars loop(std::string parameter, float val, int suite_code, loop_vars preva
       TH1F_perEVs[8]->Fill ( prevars.qmax_ici7_ev / prevars.qsum_ici7_ev );
     }
     if (prevars.zero_event_CIDvsTS_EV == 0) {
-      TH2F_perEVs[0]->Fill ( nTS, capid );
+      if (_event_num > 2) {
+        TH2F_perEVs[0]->Fill ( nTS, capid );
+      }
     }
     TH2F_perEVs[1]->Fill ( nTS, adc );
     prevars.qav_ped_CID[capid] += (charge - prevars.qped);
@@ -592,10 +681,10 @@ loop_vars loop(std::string parameter, float val, int suite_code, loop_vars preva
       prevars.first_tdc_scan_EV = 0;
       float t_abs = ((nTS-1)*25.0) + (le_tdc*0.5);
       if ( val < 50 ) {
-         TH2F_perEVs[7]->Fill (val/2.0,t_abs);
+         TH2F_perEVs[8]->Fill (val/2.0,t_abs);
       }
       if ( val > 63 ) {
-         TH2F_perEVs[7]->Fill ((val-14.0)/2.0,t_abs);
+         TH2F_perEVs[8]->Fill ((val-14.0)/2.0,t_abs);
       }
     }
     prevars.qsum_ici_ev += charge;
@@ -605,14 +694,18 @@ loop_vars loop(std::string parameter, float val, int suite_code, loop_vars preva
     }
     if (nTS != 0) {
       if (prevars.zero_event_CapIDrot_CH == 0) {
-        TH1F_perCHs[0][nCH]->Fill (capid - (digis[nTS-1].capid()+1)%4 );
+        if (_event_num > 2) {
+          TH1F_perCHs[0][nCH]->Fill (capid - (digis[nTS-1].capid()+1)%4 );
+        }
       }
     }
     if (nCH == 0) {
       prevars.ch0_cid_ch[nTS] = digis[nTS].capid();
     }
     if (prevars.zero_event_CapAllign_CH == 0) {
-      TH1F_perCHs[1][nCH]->Fill (capid - prevars.ch0_cid_ch[nTS]);
+      if (_event_num > 2) {
+        TH1F_perCHs[1][nCH]->Fill (capid - prevars.ch0_cid_ch[nTS]);
+      }
     }
     TH1F_perCHs[2][nCH]->Fill ( adc );
     prevars.qsum_ped_CH += (charge - prevars.qped);
@@ -622,7 +715,9 @@ loop_vars loop(std::string parameter, float val, int suite_code, loop_vars preva
       TH1F_perCHs[4][nCH]->Fill (t_abs);
     }
     if ( val == 38.0 ) {
-      TH1F_perCHs[5][nCH]->Fill ( adc );
+      if (prevars.corrupt == 0) {
+        TH1F_perCHs[5][nCH]->Fill ( adc );
+      }
     }
     prevars.qsum_qr_ch += charge;
     if ( charge > prevars.qmax_qr_ch ) {
@@ -633,11 +728,15 @@ loop_vars loop(std::string parameter, float val, int suite_code, loop_vars preva
       prevars.qmax_ici7_ch = charge;
     }
     if (prevars.zero_event_CIDvsTS_CH == 0) {
-      TH2F_perCHs[0][nCH]->Fill ( nTS, capid );
+      if (_event_num > 2) {
+        TH2F_perCHs[0][nCH]->Fill ( nTS, capid );
+      }
     }
     TH2F_perCHs[1][nCH]->Fill ( nTS, adc );
     TH2F_perCHs[2][nCH]->Fill ( nTS, le_tdc );
-    TH2F_perCHs[5][nCH]->Fill ( val , charge);
+    if (prevars.corrupt == 0) {
+      TH2F_perCHs[5][nCH]->Fill ( val , charge);
+    }
     if ((prevars.first_tdc_scan_CH == 1) && (le_tdc < 50)) {
       prevars.first_tdc_scan_CH = 0;
       float t_abs = ((nTS-1)*25.0) + (le_tdc*0.5);
@@ -683,31 +782,43 @@ loop_vars loop(std::string parameter, float val, int suite_code, loop_vars preva
     acharge = acharge;
     if (nTS != 0) {
       if (prevars.zero_event_CapIDrot_EV == 0) {
-        TH1F_perEVs[0]->Fill (capid - (digis[nTS-1].capid()+1)%4 );
+        if (_event_num > 2) {
+          TH1F_perEVs[0]->Fill (capid - (digis[nTS-1].capid()+1)%4 );
+        }
       }
     }
     if (nCH == 0) {
       prevars.ch0_cid_ev[nTS] = digis[nTS].capid();
     }
     if (prevars.zero_event_CapAllign_EV == 0) {
-      TH1F_perEVs[1]->Fill (capid - prevars.ch0_cid_ev[nTS]);
+      if (_event_num > 2) {
+        TH1F_perEVs[1]->Fill (capid - prevars.ch0_cid_ev[nTS]);
+      }
     }
     if (prevars.zero_event_CIDvsTS_EV == 0) {
-      TH2F_perEVs[0]->Fill ( nTS, capid );
+      if (_event_num > 2) {
+        TH2F_perEVs[0]->Fill ( nTS, capid );
+      }
     }
     if (nTS != 0) {
       if (prevars.zero_event_CapIDrot_CH == 0) {
-        TH1F_perCHs[0][nCH]->Fill (capid - (digis[nTS-1].capid()+1)%4 );
+        if (_event_num > 2) {
+          TH1F_perCHs[0][nCH]->Fill (capid - (digis[nTS-1].capid()+1)%4 );
+        }
       }
     }
     if (nCH == 0) {
       prevars.ch0_cid_ch[nTS] = digis[nTS].capid();
     }
     if (prevars.zero_event_CapAllign_CH == 0) {
-      TH1F_perCHs[1][nCH]->Fill (capid - prevars.ch0_cid_ch[nTS]);
+      if (_event_num > 2) {
+        TH1F_perCHs[1][nCH]->Fill (capid - prevars.ch0_cid_ch[nTS]);
+      }
     }
     if (prevars.zero_event_CIDvsTS_CH == 0) {
-      TH2F_perCHs[0][nCH]->Fill ( nTS, capid );
+      if (_event_num > 2) {
+        TH2F_perCHs[0][nCH]->Fill ( nTS, capid );
+      }
     }
 
   }
@@ -807,12 +918,18 @@ loop_vars loop(std::string parameter, float val, int suite_code, loop_vars preva
     float acharge = charge - prevars.qped;
     acharge = acharge;
     if ( val == 38.0 ) {
-      TH1F_perEVs[0]->Fill ( adc );
+      if (prevars.corrupt == 0) {
+        TH1F_perEVs[0]->Fill ( adc );
+      }
     }
     if ( val == 38.0 ) {
-      TH1F_perCHs[0][nCH]->Fill ( adc );
+      if (prevars.corrupt == 0) {
+        TH1F_perCHs[0][nCH]->Fill ( adc );
+      }
     }
-    TH2F_perCHs[2][nCH]->Fill ( val , charge);
+    if (prevars.corrupt == 0) {
+      TH2F_perCHs[2][nCH]->Fill ( val , charge);
+    }
 
   }
 
@@ -949,9 +1066,9 @@ loop_vars post_loop(std::string parameter, float val, int suite_code, loop_vars 
       TH2F_perEVs[2]->Fill ( jj , (prevars.qav_ped_CID[jj] / prevars.cid_count[jj]) );
     }
     if (val < 8 ) {
-      TH2F_perEVs[8]->Fill ( prevars.ici_ev[(int)val] , prevars.qsum_ici_ev );
+      TH2F_perEVs[9]->Fill ( prevars.ici_ev[(int)val] , prevars.qsum_ici_ev );
     }
-    TH2F_perEVs[9]->Fill ( val , prevars.qmax_qr2_ev / prevars.qsum_qr2_ev );
+    TH2F_perEVs[10]->Fill ( val , prevars.qmax_qr2_ev / prevars.qsum_qr2_ev );
     TH1F_perCHs[3][nCH]->Fill ( prevars.qsum_ped_CH );
     TH1F_perCHs[6][nCH]->Fill ( prevars.qmax_qr_ch / prevars.qsum_qr_ch );
     if ( val == 7 ) {
