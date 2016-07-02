@@ -12,8 +12,8 @@
 #include "TPad.h"
 #include "TF1.h"
 
-#include "../src/mask.h"
-#include "../src/draw_map.h"
+#include "../../src/mask.h"
+#include "../../src/draw_map.h"
 
 Double_t linear_fit(Double_t *x,Double_t *par) {
   Double_t out_val;
@@ -49,9 +49,9 @@ void ici_test(Int_t run_num) {
   char figure2_name[512];
   char figure3_name[512];
 
-  sprintf(dir_name,"mkdir ../img/%i",run_num);
+  sprintf(dir_name,"mkdir ../../img/%i",run_num);
   system(dir_name);
-  sprintf(dir_name,"mkdir ../img/%i/ici_test",run_num);
+  sprintf(dir_name,"mkdir ../../img/%i/ici_test",run_num);
   system(dir_name);
 
   TH1F *h0_temp = new TH1F();
@@ -63,7 +63,7 @@ void ici_test(Int_t run_num) {
   TH1F *h6_temp = new TH1F();
   TFile *_file0 =  new TFile();
 
-  sprintf(file0_name,"../dat/QIE10testing_%i_6.root",run_num);
+  sprintf(file0_name,"../../dat/QIE10testing_%i_6.root",run_num);
   _file0 = TFile::Open(file0_name);
   
   TCanvas *c1 = new TCanvas("c1","c1",100,100,1024,768);
@@ -71,7 +71,7 @@ void ici_test(Int_t run_num) {
   gStyle->SetOptStat(0);
   
   sprintf(hist4_name,"%s/%s","ici_scan_EV","ici_scan_EV");
-  sprintf(figure1_name,"../img/%i/ici_test/Scan.png",run_num);
+  sprintf(figure1_name,"../../img/%i/ici_test/Scan.png",run_num);
   h4_temp = (TH1F*)_file0->Get(hist4_name);
   h4_temp->Draw("color");
   c1->SaveAs(figure1_name);
@@ -79,7 +79,7 @@ void ici_test(Int_t run_num) {
   h4_temp->Delete();
 
   sprintf(hist5_name,"%s/%s","qratio2_EV","qratio2_EV");
-  sprintf(figure2_name,"../img/%i/ici_test/Ratio.png",run_num);
+  sprintf(figure2_name,"../../img/%i/ici_test/Ratio.png",run_num);
   h5_temp = (TH1F*)_file0->Get(hist5_name);
   h5_temp->Draw("box");
   c1->SaveAs(figure2_name);
@@ -87,7 +87,7 @@ void ici_test(Int_t run_num) {
   h5_temp->Delete();
 
   sprintf(hist6_name,"%s/%s","T_abs_EV","T_abs_EV");
-  sprintf(figure3_name,"../img/%i/ici_test/Timing.png",run_num);
+  sprintf(figure3_name,"../../img/%i/ici_test/Timing.png",run_num);
   h6_temp = (TH1F*)_file0->Get(hist6_name);
   h6_temp->Draw();
   c1->SaveAs(figure3_name);
@@ -122,7 +122,7 @@ void ici_test(Int_t run_num) {
 	      ici_offset = fit_ici->GetParameter(1);	      
 	      if ((ici_slope < ici_slope_low) || (ici_slope > ici_slope_high) || (h0_temp->GetEntries() < 10)) {
 		h0_temp->Draw("color");
-		sprintf(figure0_name,"../img/%i/ici_test/ici_scan_HF%i_Slot%i_QIE%i.png",run_num,h+1,s+1,q+1);
+		sprintf(figure0_name,"../../img/%i/ici_test/ici_scan_HF%i_Slot%i_QIE%i.png",run_num,h+1,s+1,q+1);
 		c1->SaveAs(figure0_name);
 		c1->Clear();
 		lv2_err_map_slope[h][s][q] = 0;
@@ -131,7 +131,7 @@ void ici_test(Int_t run_num) {
 	      if ((ici_offset < ici_offset_low) || (ici_offset > ici_offset_high) || (h0_temp->GetEntries() < 10)) {
 		if (lv2_err_map_gen[h][s][q] == 1) {
 		  h0_temp->Draw("color");
-		  sprintf(figure0_name,"../img/%i/ici_test/ici_scan_HF%i_Slot%i_QIE%i.png",run_num,h+1,s+1,q+1);
+		  sprintf(figure0_name,"../../img/%i/ici_test/ici_scan_HF%i_Slot%i_QIE%i.png",run_num,h+1,s+1,q+1);
 		  c1->SaveAs(figure0_name);
 		  c1->Clear();
 		}
@@ -145,7 +145,7 @@ void ici_test(Int_t run_num) {
 	      }	
 	      if ((h2_temp->GetMean() < ici_ratio_low) || (h2_temp->GetEntries() < 10)) {
 		h3_temp->Draw();
-		sprintf(figure0_name,"../img/%i/ici_test/pulse_ICI7_HF%i_Slot%i_QIE%i.png",run_num,h+1,s+1,q+1);
+		sprintf(figure0_name,"../../img/%i/ici_test/pulse_ICI7_HF%i_Slot%i_QIE%i.png",run_num,h+1,s+1,q+1);
 		c1->SaveAs(figure0_name);
 		cout << "HF: " << h+1 << ", SL: " << s+1 << ", QI: " << q+1 << endl;
 		cout << "Slope: " << ici_slope << ", Offset: " << ici_offset << ", RMS: " << h1_temp->GetRMS() << ", Ratio: " << h2_temp->GetMean() << endl;

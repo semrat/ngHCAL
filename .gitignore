@@ -1,0 +1,16 @@
+# ROOT
+*.so
+*.d
+*.pcm
+
+# EMACS
+*~
+\#*\#
+
+# DATA DIRECTORIES
+dat/*
+!dat/.placeholder
+img/*
+!img/.placeholder
+log/*
+!log/.placeholder

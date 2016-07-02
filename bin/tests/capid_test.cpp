@@ -11,8 +11,8 @@
 #include "TPad.h"
 #include "TF1.h"
 
-#include "../src/mask.h"
-#include "../src/draw_map.h"
+#include "../../src/mask.h"
+#include "../../src/draw_map.h"
 
 using namespace std;
 
@@ -25,9 +25,9 @@ void capid_test(Int_t run_num) {
   char dir_name[512];
   char figure0_name[512];
 
-  sprintf(dir_name,"mkdir ../img/%i",run_num);  
+  sprintf(dir_name,"mkdir ../../img/%i",run_num);  
   system(dir_name);
-  sprintf(dir_name,"mkdir ../img/%i/capid_test",run_num);  
+  sprintf(dir_name,"mkdir ../../img/%i/capid_test",run_num);  
   system(dir_name);
 
   TH1F *h0_temp = new TH1F();
@@ -35,12 +35,12 @@ void capid_test(Int_t run_num) {
   TH1F *h2_temp = new TH1F();
   TFile *_file0 =  new TFile();
   
-  sprintf(root_file_name,"../dat/QIE10testing_%i_1.root",run_num);
+  sprintf(root_file_name,"../../dat/QIE10testing_%i_1.root",run_num);
   _file0 = TFile::Open(root_file_name);
 
   TCanvas *c1 = new TCanvas("c1","c1",100,100,1024,768);
   sprintf(hist2_name,"%s/%s","CIDvsTS_EV","CIDvsTS_EV");
-  sprintf(figure0_name,"../img/%i/capid_test/Pulse.png",run_num);
+  sprintf(figure0_name,"../../img/%i/capid_test/Pulse.png",run_num);
   h2_temp = (TH1F*)_file0->Get(hist2_name);
   h2_temp->Draw("box");
   c1->SaveAs(figure0_name);

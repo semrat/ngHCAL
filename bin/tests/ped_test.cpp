@@ -12,8 +12,8 @@
 #include "TPad.h"
 #include "TF1.h"
 
-#include "../src/mask.h"
-#include "../src/draw_map.h"
+#include "../../src/mask.h"
+#include "../../src/draw_map.h"
 
 Double_t ped_scan_fit(Double_t *x,Double_t *par) {
   Double_t out_val;
@@ -49,9 +49,9 @@ void ped_test(Int_t run_num) {
   char dir_name[512];
   char figure0_name[512];
 
-  sprintf(dir_name,"mkdir ../img/%i",run_num);
+  sprintf(dir_name,"mkdir ../../img/%i",run_num);
   system(dir_name);
-  sprintf(dir_name,"mkdir ../img/%i/ped_test",run_num);
+  sprintf(dir_name,"mkdir ../../img/%i/ped_test",run_num);
   system(dir_name);
 
   TH1F *h0_temp = new TH1F();
@@ -59,14 +59,14 @@ void ped_test(Int_t run_num) {
   TH1F *h2_temp = new TH1F();
   TFile *_file0 =  new TFile();
   
-  sprintf(file0_name,"../dat/QIE10testing_%i_4.root",run_num);
+  sprintf(file0_name,"../../dat/QIE10testing_%i_4.root",run_num);
   _file0 = TFile::Open(file0_name);
 
   gStyle->SetOptStat(0);
 
   TCanvas *c1 = new TCanvas("c1","c1",100,100,1024,768);
   sprintf(hist2_name,"%s/%s","PedScan_qav_EV","PedScan_qav_EV");
-  sprintf(figure0_name,"../img/%i/ped_test/Scan.png",run_num);
+  sprintf(figure0_name,"../../img/%i/ped_test/Scan.png",run_num);
   h2_temp = (TH1F*)_file0->Get(hist2_name);
   h2_temp->Draw("box");
   c1->SaveAs(figure0_name);
