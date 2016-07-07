@@ -371,7 +371,7 @@ void QIE10_testing::getData(const edm::Event &iEvent, const edm::EventSetup &iSe
 
   // ********* PRE EVENT LOOP ************
 
-  loop_vars prevars;
+  loop_vars global;
   
   pre_event_loop(slow_data.parameter,slow_data.val,_suite_code,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
 
@@ -455,23 +455,23 @@ void QIE10_testing::getData(const edm::Event &iEvent, const edm::EventSetup &iSe
         
     //******** PRELOOP ***********
 
-    prevars = pre_loop(slow_data.parameter,slow_data.val,_suite_code,prevars,qie10df,j,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
+    global = pre_loop(slow_data.parameter,slow_data.val,_suite_code,global,qie10df,j,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
 
     //********** LOOP ************
 	
     for(int i=0; i<nTS; ++i)
       {
 
-	prevars = loop(slow_data.parameter,slow_data.val,_suite_code,prevars,qie10df,i,j,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
+	global = loop(slow_data.parameter,slow_data.val,_suite_code,global,qie10df,i,j,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
 
       }
 
     //******** POSTLOOP ********
 
-    post_loop(slow_data.parameter,slow_data.val,_suite_code,prevars,qie10df,j,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
+    post_loop(slow_data.parameter,slow_data.val,_suite_code,global,qie10df,j,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
 
     if (_verbosity>0)
-      std::cout << "The pedestal for this channel is " << prevars.adcped << "ADC counts and " << prevars.qped << " fC" << std::endl;
+      std::cout << "The pedestal for this channel is " << global.adcped << "ADC counts and " << global.qped << " fC" << std::endl;
     
   }
 
@@ -484,7 +484,7 @@ void QIE10_testing::getData(const edm::Event &iEvent, const edm::EventSetup &iSe
 
   // ********* POST_EVENT_LOOP *************
 
-  post_event_loop(slow_data.parameter,slow_data.val,_suite_code,prevars,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
+  post_event_loop(slow_data.parameter,slow_data.val,_suite_code,global,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
 
   _event_num++;
 
