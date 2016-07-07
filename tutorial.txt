@@ -1,0 +1,127 @@
+#####################
+#####################
+## Getting Started ##
+#####################
+#####################
+
+############################################################
+# 1 - Get a CMSSW 8_1_x release and set up the environment #
+############################################################
+$ cmsrel CMSSW_8_1_0_pre8 
+$ cd CMSSW_8_1_0_pre8/src
+$ cmsenv
+
+#############################################
+# 2 - Get and compile this software package #
+#############################################
+$ git clone git@github.com:jmariano-cern/QIE10_Testing.git temp
+$ cd ngHCAL
+$ scram b
+
+################################
+# 3 - Process a simple LED run #
+################################
+$ cd QIE10_Testing/bin
+$ less QIE10_testing.info 
+$ cmsRun QIE10_testing.py 1000021020 1
+$ cmsRun QIE10_testing.py 1000021020 2
+
+###########################
+# 4 - Look at the Results #
+###########################
+$ cd ../dat
+$ root -l QIE10testing_1000021020_1.root
+$ root -l QIE10testing_1000021020_2.root
+
+################################
+################################
+## Understanding the Analyzer ##
+################################
+################################
+
+#############################################
+# 1 - Study the analyzer configuration file #
+#############################################
+$ cd ../cfg
+$ emacs QIE10_testing.cfg
+
+###############################
+# 2 - Add your own test suite #
+###############################
+* at the bottom of the file, add:
+###########################################
+<start_suite>
+name = "ADC_vs_TDC"
+code = 3
+null = "General"
+TH2F_perCH = "ADC_vs_TDC_CH"
+TH2F_perEV = "ADC_vs_TDC_EV"
+<end_suite>
+###########################################
+
+##############################
+# 3 - Now add the histograms #
+##############################
+* below the suite block, add:
+###########################################
+<start_definition>
+name = "ADC_vs_TDC_CH"
+type = TH2F_perCH
+nbinsx = 64
+lowx = -0.5
+highx = 63.5
+titlex = "TDC"
+nbinsy = 256
+lowy = -0.5
+highy = 255.5
+titley = "ADC"
+
+loop = <start_block>
+  if (le_tdc < 50) {
+    if (global.corrupt == 0) {
+      <fill_perCH> ( le_tdc , adc );
+    }
+  }
+<end_block>
+
+<end_definition>
+###########################################
+* and below this, add:
+###########################################
+<start_definition>
+name = "ADC_vs_TDC_EV"
+type = TH2F_perEV
+nbinsx = 64
+lowx = -0.5
+highx = 63.5
+titlex = "TDC"
+nbinsy = 256
+lowy = -0.5
+highy = 255.5
+titley = "ADC"
+
+loop = <start_block>
+  if (le_tdc < 50) {
+    if (global.corrupt == 0) {
+      <fill_perEV> ( le_tdc , adc );
+    }
+  }
+<end_block>
+
+<end_definition>
+###########################################
+
+############################
+# 4 - Rebuild the analyzer #
+############################
+$ cd ../src
+$ ./rebuild
+
+################
+# 5 - Test it! #
+################
+$ cd ../bin
+$ less QIE10_testing.info
+$ cmsRun QIE10_testing.py 1000021020 3
+$ cd ../dat
+$ root -l QIE10testing_1000021020_3.root
