@@ -46,7 +46,7 @@ cpp_types = {
 # types of blocks
 block_definitions = [
 
-    'loop_vars'       , # non-local variables to be used in loops
+    'globals'       , # non-local variables to be used in loops
     'pre_event_loop'  , # runs once per event
     'pre_loop'        , # runs once per channel per event
     'loop'            , # runs once per timeslice per channel per event
@@ -189,13 +189,13 @@ def print_loop():
     s = 0
     loopfile.write('// --- Suite ' + suites[s][0] + ': ' + suites[s][1] + ' ---\n')
     loopfile.write('\n')
-    loopfile.write('struct loop_vars {\n')
+    loopfile.write('struct globals {\n')
     loopfile.write('\n')
     for i in range(len(data)):
         for j in range(len(data[i])):
             if suites[s][0] in data[i][j][2]:
                 for k in range(len(block_definitions)):
-                    if block_definitions[k] == 'loop_vars':
+                    if block_definitions[k] == 'globals':
                         for line in data[i][j][1][k]:
                             loopfile.write(line + '\n')                              
     loopfile.write('\n')
@@ -205,9 +205,9 @@ def print_loop():
     loopfile.write('// # PRE_EVENT_LOOPS #\n')
     loopfile.write('// ###################\n')
     loopfile.write('\n')
-    loopfile.write('loop_vars pre_event_loop(std::string parameter, float val, int suite_code, int _event_num, TQIE10Info &_qie10Info, TTree** _trees, vector<TH1F*> &TH1F_perEVs, vector<vector<TH1F*> > &TH1F_perCHs, vector<vector<vector<TH1F*> > > &TH1F_PerTSs, vector<TH2F*> &TH2F_perEVs, vector<vector<TH2F*> > &TH2F_perCHs, vector<vector<vector<TH2F*> > > &TH2F_PerTSs, vector<vector<TH2F*> > &TProfiles, ofstream *loggers) {\n')
+    loopfile.write('globals pre_event_loop(std::string parameter, float val, int suite_code, int _event_num, TQIE10Info &_qie10Info, TTree** _trees, vector<TH1F*> &TH1F_perEVs, vector<vector<TH1F*> > &TH1F_perCHs, vector<vector<vector<TH1F*> > > &TH1F_PerTSs, vector<TH2F*> &TH2F_perEVs, vector<vector<TH2F*> > &TH2F_perCHs, vector<vector<vector<TH2F*> > > &TH2F_PerTSs, vector<vector<TH2F*> > &TProfiles, ofstream *loggers) {\n')
     loopfile.write('\n')
-    loopfile.write('  loop_vars global;\n')
+    loopfile.write('  globals global;\n')
     loopfile.write('\n')
     for s in range(len(suites)):
         loopfile.write('// --- Suite ' + suites[s][0] + ': ' + suites[s][1] + ' ---\n')
@@ -243,7 +243,7 @@ def print_loop():
     loopfile.write('// # PRE_LOOPS #\n')
     loopfile.write('// #############\n')
     loopfile.write('\n')
-    loopfile.write('loop_vars pre_loop(std::string parameter, float val, int suite_code, loop_vars global, QIE10DataFrame digis, int nCH, int _event_num, TQIE10Info &_qie10Info, TTree** _trees, vector<TH1F*> &TH1F_perEVs, vector<vector<TH1F*> > &TH1F_perCHs, vector<vector<vector<TH1F*> > > &TH1F_PerTSs, vector<TH2F*> &TH2F_perEVs, vector<vector<TH2F*> > &TH2F_perCHs, vector<vector<vector<TH2F*> > > &TH2F_PerTSs, vector<vector<TH2F*> > &TProfiles, ofstream *loggers) {\n')
+    loopfile.write('globals pre_loop(std::string parameter, float val, int suite_code, globals global, QIE10DataFrame digis, int nCH, int _event_num, TQIE10Info &_qie10Info, TTree** _trees, vector<TH1F*> &TH1F_perEVs, vector<vector<TH1F*> > &TH1F_perCHs, vector<vector<vector<TH1F*> > > &TH1F_PerTSs, vector<TH2F*> &TH2F_perEVs, vector<vector<TH2F*> > &TH2F_perCHs, vector<vector<vector<TH2F*> > > &TH2F_PerTSs, vector<vector<TH2F*> > &TProfiles, ofstream *loggers) {\n')
     loopfile.write('\n')
     for s in range(len(suites)):
         loopfile.write('// --- Suite ' + suites[s][0] + ': ' + suites[s][1] + ' ---\n')
@@ -279,7 +279,7 @@ def print_loop():
     loopfile.write('// # LOOPS #\n')
     loopfile.write('// #########\n')
     loopfile.write('\n')
-    loopfile.write('loop_vars loop(std::string parameter, float val, int suite_code, loop_vars global, QIE10DataFrame digis, int nTS, int nCH, int _event_num, TQIE10Info &_qie10Info, TTree** _trees, vector<TH1F*> &TH1F_perEVs, vector<vector<TH1F*> > &TH1F_perCHs, vector<vector<vector<TH1F*> > > &TH1F_PerTSs, vector<TH2F*> &TH2F_perEVs, vector<vector<TH2F*> > &TH2F_perCHs, vector<vector<vector<TH2F*> > > &TH2F_PerTSs, vector<vector<TH2F*> > &TProfiles, ofstream *loggers) {\n')
+    loopfile.write('globals loop(std::string parameter, float val, int suite_code, globals global, QIE10DataFrame digis, int nTS, int nCH, int _event_num, TQIE10Info &_qie10Info, TTree** _trees, vector<TH1F*> &TH1F_perEVs, vector<vector<TH1F*> > &TH1F_perCHs, vector<vector<vector<TH1F*> > > &TH1F_PerTSs, vector<TH2F*> &TH2F_perEVs, vector<vector<TH2F*> > &TH2F_perCHs, vector<vector<vector<TH2F*> > > &TH2F_PerTSs, vector<vector<TH2F*> > &TProfiles, ofstream *loggers) {\n')
     loopfile.write('\n')
     for s in range(len(suites)):
         loopfile.write('// --- Suite ' + suites[s][0] + ': ' + suites[s][1] + ' ---\n')
@@ -315,7 +315,7 @@ def print_loop():
     loopfile.write('// # POST_LOOPS #\n')
     loopfile.write('// ##############\n')
     loopfile.write('\n')
-    loopfile.write('loop_vars post_loop(std::string parameter, float val, int suite_code, loop_vars global, QIE10DataFrame digis, int nCH, int _event_num, TQIE10Info &_qie10Info, TTree** _trees, vector<TH1F*> &TH1F_perEVs, vector<vector<TH1F*> > &TH1F_perCHs, vector<vector<vector<TH1F*> > > &TH1F_PerTSs, vector<TH2F*> &TH2F_perEVs, vector<vector<TH2F*> > &TH2F_perCHs, vector<vector<vector<TH2F*> > > &TH2F_PerTSs, vector<vector<TH2F*> > &TProfiles, ofstream *loggers) {\n')
+    loopfile.write('globals post_loop(std::string parameter, float val, int suite_code, globals global, QIE10DataFrame digis, int nCH, int _event_num, TQIE10Info &_qie10Info, TTree** _trees, vector<TH1F*> &TH1F_perEVs, vector<vector<TH1F*> > &TH1F_perCHs, vector<vector<vector<TH1F*> > > &TH1F_PerTSs, vector<TH2F*> &TH2F_perEVs, vector<vector<TH2F*> > &TH2F_perCHs, vector<vector<vector<TH2F*> > > &TH2F_PerTSs, vector<vector<TH2F*> > &TProfiles, ofstream *loggers) {\n')
     loopfile.write('\n')
     for s in range(len(suites)):
         loopfile.write('// --- Suite ' + suites[s][0] + ': ' + suites[s][1] + ' ---\n')
@@ -351,7 +351,7 @@ def print_loop():
     loopfile.write('// # POST_EVENT_LOOPS #\n')
     loopfile.write('// ####################\n')
     loopfile.write('\n')
-    loopfile.write('void post_event_loop(std::string parameter, float val, int suite_code, loop_vars global, int _event_num, TQIE10Info &_qie10Info, TTree** _trees, vector<TH1F*> &TH1F_perEVs, vector<vector<TH1F*> > &TH1F_perCHs, vector<vector<vector<TH1F*> > > &TH1F_PerTSs, vector<TH2F*> &TH2F_perEVs, vector<vector<TH2F*> > &TH2F_perCHs, vector<vector<vector<TH2F*> > > &TH2F_PerTSs, vector<vector<TH2F*> > &TProfiles, ofstream *loggers) {\n')
+    loopfile.write('void post_event_loop(std::string parameter, float val, int suite_code, globals global, int _event_num, TQIE10Info &_qie10Info, TTree** _trees, vector<TH1F*> &TH1F_perEVs, vector<vector<TH1F*> > &TH1F_perCHs, vector<vector<vector<TH1F*> > > &TH1F_PerTSs, vector<TH2F*> &TH2F_perEVs, vector<vector<TH2F*> > &TH2F_perCHs, vector<vector<vector<TH2F*> > > &TH2F_PerTSs, vector<vector<TH2F*> > &TProfiles, ofstream *loggers) {\n')
     loopfile.write('\n')
     for s in range(len(suites)):
         loopfile.write('// --- Suite ' + suites[s][0] + ': ' + suites[s][1] + ' ---\n')

@@ -371,7 +371,7 @@ void QIE10_testing::getData(const edm::Event &iEvent, const edm::EventSetup &iSe
 
   // ********* PRE EVENT LOOP ************
 
-  loop_vars global;
+  globals global;
   
   pre_event_loop(slow_data.parameter,slow_data.val,_suite_code,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
 
@@ -470,9 +470,8 @@ void QIE10_testing::getData(const edm::Event &iEvent, const edm::EventSetup &iSe
 
     post_loop(slow_data.parameter,slow_data.val,_suite_code,global,qie10df,j,_event_num,_qie10Info,_trees,TH1F_perEVs,TH1F_perCHs,TH1F_PerTSs,TH2F_perEVs,TH2F_perCHs,TH2F_PerTSs,TProfiles,loggers);
 
-    if (_verbosity>0)
-      std::cout << "The pedestal for this channel is " << global.adcped << "ADC counts and " << global.qped << " fC" << std::endl;
-    
+    //if (_verbosity>0)
+    //std::cout << "The pedestal for this channel is " << global.adcped << "ADC counts and " << global.qped << " fC" << std::endl;    
   }
 
   //maybe one channel not filled?
