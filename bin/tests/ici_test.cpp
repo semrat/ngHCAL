@@ -28,8 +28,8 @@ void ici_test(Int_t run_num) {
   float ici_slope_low = 1.0;
   float ici_slope_high = 1.1;
   float ici_offset_low = -0.0;
-  float ici_offset_high = 200.0;
-  float ici_rms_high = 15.0;
+  float ici_offset_high = 250.0;
+  float ici_rms_high = 1.0;
   float ici_ratio_low = 0.98;
 
   float ici_slope;
@@ -138,13 +138,13 @@ void ici_test(Int_t run_num) {
 		lv2_err_map_offset[h][s][q] = 0;
 		lv2_err_map_gen[h][s][q] = 0;
 	      }	
-	      //cout << "Timing mean: " << h1_temp->GetMean() << ", rms: " << h1_temp->GetRMS() << ", nentries: " << h1_temp->GetEntries() << endl;
+	      cout << "Timing mean: " << h1_temp->GetMean() << ", rms: " << h1_temp->GetRMS() << ", nentries: " << h1_temp->GetEntries() << endl;
 	      if ((h1_temp->GetRMS() > ici_rms_high) || (h1_temp->GetEntries() < 10)) {
 		lv2_err_map_rms[h][s][q] = 0;
 		lv2_err_map_gen[h][s][q] = 0;
 	      }	
 	      if ((h2_temp->GetMean() < ici_ratio_low) || (h2_temp->GetEntries() < 10)) {
-		h3_temp->Draw();
+		h3_temp->Draw("box");
 		sprintf(figure0_name,"../../img/%i/ici_test/pulse_ICI7_HF%i_Slot%i_QIE%i.png",run_num,h+1,s+1,q+1);
 		c1->SaveAs(figure0_name);
 		cout << "HF: " << h+1 << ", SL: " << s+1 << ", QI: " << q+1 << endl;
