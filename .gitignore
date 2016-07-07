@@ -15,3 +15,5 @@ QIE10_Testing/img/*
 !QIE10_Testing/img/.placeholder
 QIE10_Testing/log/*
 !QIE10_Testing/log/.placeholder
+QIE10_Testing/python/*
+!QIE10_Testing/python/.placeholder
