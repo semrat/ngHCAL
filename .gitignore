@@ -8,9 +8,10 @@
 \#*\#
 
 # DATA DIRECTORIES
-dat/*
-!dat/.placeholder
-img/*
-!img/.placeholder
-log/*
-!log/.placeholder
+QIE10_Testing/dat/*
+!QIE10_Testing/dat/.placeholder
+!QIE10_Testing/dat/output/.placeholder
+QIE10_Testing/img/*
+!QIE10_Testing/img/.placeholder
+QIE10_Testing/log/*
+!QIE10_Testing/log/.placeholder
