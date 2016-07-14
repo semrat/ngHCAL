@@ -152,8 +152,10 @@ globals loop(std::string parameter, float val, int suite_code, globals global, Q
     if (global.corrupt == 0) {
       TH1F_perEVs[0]->Fill ( adc );
     }
-    if (global.corrupt == 0) {
-      TH1F_perEVs[1]->Fill ( le_tdc );
+    if (le_tdc < 50) {
+      if (global.corrupt == 0) {
+        TH1F_perEVs[1]->Fill ( le_tdc );
+      }
     }
     if (global.corrupt == 0) {
       TH2F_perEVs[0]->Fill ( nTS , adc );
@@ -162,22 +164,18 @@ globals loop(std::string parameter, float val, int suite_code, globals global, Q
       TH2F_perEVs[1]->Fill ( nTS , le_tdc );
     }
     if (global.corrupt == 0) {
-      TH2F_perEVs[2]->Fill ( le_tdc , adc );
-    }
-    if (global.corrupt == 0) {
       TH1F_perCHs[0][nCH]->Fill ( adc );
     }
-    if (global.corrupt == 0) {
-      TH1F_perCHs[1][nCH]->Fill ( le_tdc );
+    if (le_tdc < 50) {
+      if (global.corrupt == 0) {
+        TH1F_perCHs[1][nCH]->Fill ( le_tdc );
+      }
     }
     if (global.corrupt == 0) {
       TH2F_perCHs[0][nCH]->Fill ( nTS , adc );
     }
     if (global.corrupt == 0) {
       TH2F_perCHs[1][nCH]->Fill ( nTS , le_tdc );
-    }
-    if (global.corrupt == 0) {
-      TH2F_perCHs[2][nCH]->Fill ( le_tdc , adc );
     }
     if (global.corrupt == 0) {
       TProfiles[0][nCH]->Fill ( nTS , adc );
@@ -235,23 +233,21 @@ globals loop(std::string parameter, float val, int suite_code, globals global, Q
     capid = capid;
     float charge = adc2fC_QIE10_refl[ adc ] + 14.45;
     charge = charge;
-    if (global.corrupt == 0) {
-      TH1F_perEVs[0]->Fill ( le_tdc );
+    if (le_tdc < 50) {
+      if (global.corrupt == 0) {
+        TH1F_perEVs[0]->Fill ( le_tdc );
+      }
     }
     if (global.corrupt == 0) {
       TH2F_perEVs[0]->Fill ( nTS , le_tdc );
     }
-    if (global.corrupt == 0) {
-      TH2F_perEVs[1]->Fill ( le_tdc , adc );
-    }
-    if (global.corrupt == 0) {
-      TH1F_perCHs[0][nCH]->Fill ( le_tdc );
+    if (le_tdc < 50) {
+      if (global.corrupt == 0) {
+        TH1F_perCHs[0][nCH]->Fill ( le_tdc );
+      }
     }
     if (global.corrupt == 0) {
       TH2F_perCHs[0][nCH]->Fill ( nTS , le_tdc );
-    }
-    if (global.corrupt == 0) {
-      TH2F_perCHs[1][nCH]->Fill ( le_tdc , adc );
     }
 
   }
